@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧘 ZenBot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <h1>🧘 ZenBot</h1>
+
+    <div class="container">
+        <form id="apiKeyForm">
+            <div class="form-group">
+                <label for="apiKey">OpenAI API Key:</label>
+                <input type="password" id="apiKey" name="apiKey" required>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="rememberKey" name="rememberKey">
+                <label for="rememberKey">Remember API key for this session</label>
+            </div>
+            <button type="submit">Save API Key</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <form id="meditationForm">
+            <div class="form-group">
+                <label for="prompt">Meditation topic:</label>
+                <input type="text" id="prompt" name="prompt" required>
+            </div>
+            <div class="form-group">
+                <label for="duration">Duration (minutes):</label>
+                <input type="number" id="duration" name="duration" min="1" max="60" required>
+            </div>
+            <button type="submit" disabled>Generate Meditation</button>
+        </form>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Generating meditation script...</div>
+        </div>
+
+        <div class="audio-player" id="audioPlayer">
+            <audio id="meditationAudio" controls>
+                Your browser does not support the audio element.
+            </audio>
+            <div class="audio-controls">
+                <button id="pauseResumeBtn">Pause</button>
+                <button id="stopBtn">Stop</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript files -->
+    <script src="js/api.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
