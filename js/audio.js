@@ -13,23 +13,20 @@ class AudioManager {
 
         // DOM elements
         this.audioPlayer = document.getElementById('audioPlayer');
-        this.progressBar = document.getElementById('progressFill');
-        this.pauseResumeBtn = document.getElementById('pauseResumeBtn');
-        this.stopBtn = document.getElementById('stopBtn');
+        this.playPauseBtn = document.getElementById('playPauseBtn');
+        this.playIcon = this.playPauseBtn.querySelector('.play-icon');
+        this.pauseIcon = this.playPauseBtn.querySelector('.pause-icon');
 
         this.setupEventListeners();
     }
 
     setupEventListeners() {
-        this.pauseResumeBtn.addEventListener('click', () => this.togglePlayPause());
-        this.stopBtn.addEventListener('click', () => this.stopPlayback());
+        this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+    }
 
-        // Add click listener to initialize AudioContext
-        document.addEventListener('click', () => {
-            if (!this.isInitialized) {
-                this.initialize();
-            }
-        }, { once: true });  // only need to initialize once
+    updatePlayPauseButton(isPlaying) {
+        this.playIcon.style.display = isPlaying ? 'none' : 'block';
+        this.pauseIcon.style.display = isPlaying ? 'block' : 'none';
     }
 
     async initialize() {
@@ -78,56 +75,49 @@ class AudioManager {
     }
 
     async processScript(script) {
-        debugLog('Starting audio processing...');
+        console.log('Starting script processing...');
 
-        // Split script into parts based on pause markers
         const parts = script.split(/\[PAUSE (\d+(?:\.\d+)?)\]/);
-        debugLog(`Script split into ${parts.length} parts`);
-
         const audioBuffers = [];
         let currentTime = 0;
         const timingMarks = [];
 
         try {
             // Add initial bell
-            debugLog('Loading and adding initial bell...');
             if (!this.bellBuffer) {
-                try {
-                    await this.loadBellSound();
-                    debugLog('Bell sound loaded successfully');
-                } catch (error) {
-                    debugLog(`Error loading bell sound: ${error.message}`, 'error');
-                    throw error;
-                }
+                await this.loadBellSound();
             }
-
             audioBuffers.push(this.bellBuffer);
             timingMarks.push({ time: currentTime, type: 'bell' });
             currentTime += this.bellBuffer.duration;
+
+            // Calculate total number of parts for progress
+            const totalParts = parts.filter((_, i) => i % 2 === 0 && parts[i].trim()).length;
+            let completedParts = 0;
 
             for (let i = 0; i < parts.length; i++) {
                 if (i % 2 === 0) {
                     // Text part
                     if (parts[i].trim()) {
-                        debugLog(`Processing text part ${i/2 + 1}...`);
-                        try {
-                            const blob = await apiManager.generateSpeech(parts[i]);
-                            debugLog('Speech generated, converting to audio buffer...');
-                            const arrayBuffer = await blob.arrayBuffer();
-                            const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
-                            audioBuffers.push(audioBuffer);
-                            timingMarks.push({ time: currentTime, type: 'speech' });
-                            currentTime += audioBuffer.duration;
-                            debugLog('Text part processed successfully');
-                        } catch (error) {
-                            debugLog(`Error processing text part: ${error.message}`, 'error');
-                            throw error;
-                        }
+                        // Update progress
+                        completedParts++;
+                        const progressPercentage = (completedParts / totalParts) * 80 + 20; // 20-100%
+                        this.updateProgress(
+                            progressPercentage,
+                            `Generating audio files (${completedParts}/${totalParts})`
+                        );
+
+                        console.log(`Processing part ${completedParts}/${totalParts}`);
+                        const blob = await apiManager.generateSpeech(parts[i]);
+                        const arrayBuffer = await blob.arrayBuffer();
+                        const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+                        audioBuffers.push(audioBuffer);
+                        timingMarks.push({ time: currentTime, type: 'speech', text: parts[i].trim() });
+                        currentTime += audioBuffer.duration;
                     }
                 } else {
                     // Pause part
                     const pauseDuration = parseFloat(parts[i]) * 60;
-                    debugLog(`Adding ${pauseDuration} second pause...`);
                     const silenceBuffer = await this.createSilence(pauseDuration);
                     audioBuffers.push(silenceBuffer);
                     timingMarks.push({ time: currentTime, type: 'pause', duration: pauseDuration });
@@ -136,24 +126,27 @@ class AudioManager {
             }
 
             // Add final bell
-            debugLog('Adding final bell...');
             audioBuffers.push(this.bellBuffer);
             timingMarks.push({ time: currentTime, type: 'bell' });
             currentTime += this.bellBuffer.duration;
 
             // Merge all audio buffers
-            debugLog('Merging audio buffers...');
             this.totalDuration = currentTime;
             const finalBuffer = this.mergeAudioBuffers(audioBuffers, currentTime);
             this.meditationBuffer = finalBuffer;
             this.timingMarks = timingMarks;
 
-            debugLog(`Audio processing completed. Total duration: ${this.totalDuration} seconds`);
-
-            // Show audio player
+            // After successful processing, show player and start playback
             this.audioPlayer.style.display = 'block';
+            this.updatePlayPauseButton(true);  // Update button state
+
+            // Start playback automatically
+            setTimeout(() => {
+                this.startPlayback();
+            }, 500);  // Small delay to ensure UI is ready
+
         } catch (error) {
-            debugLog(`Error in processScript: ${error.message}`, 'error');
+            console.error('Error in processScript:', error);
             throw error;
         }
     }
@@ -173,47 +166,101 @@ class AudioManager {
     }
 
     mergeAudioBuffers(buffers, totalDuration) {
-        const channelCount = 1; // Mono audio
+        console.log('Starting buffer merge with:', {
+            numberOfBuffers: buffers.length,
+            totalDuration: totalDuration,
+            sampleRate: this.audioContext.sampleRate
+        });
+
+        const sampleRate = this.audioContext.sampleRate;
+        const numberOfChannels = Math.max(...buffers.map(buffer => buffer.numberOfChannels));
         const finalBuffer = this.audioContext.createBuffer(
-            channelCount,
-            totalDuration * this.audioContext.sampleRate,
-            this.audioContext.sampleRate
+            numberOfChannels,
+            Math.ceil(totalDuration * sampleRate),
+            sampleRate
         );
 
-        let offset = 0;
-        for (const buffer of buffers) {
-            // Copy each buffer into the final buffer
-            for (let channel = 0; channel < channelCount; channel++) {
+        buffers.forEach((buffer, index) => {
+            console.log(`Processing buffer ${index + 1}/${buffers.length}:`, {
+                duration: buffer.duration,
+                channels: buffer.numberOfChannels,
+                length: buffer.length
+            });
+
+            for (let channel = 0; channel < numberOfChannels; channel++) {
                 const finalChannelData = finalBuffer.getChannelData(channel);
-                const bufferChannelData = buffer.getChannelData(Math.min(channel, buffer.numberOfChannels - 1));
-                finalChannelData.set(bufferChannelData, offset * this.audioContext.sampleRate);
+
+                // Get the channel data, using the first channel if the current channel doesn't exist
+                const sourceChannelData = buffer.getChannelData(
+                    Math.min(channel, buffer.numberOfChannels - 1)
+                );
+
+                // Calculate the offset in samples
+                const offsetSamples = Math.floor(
+                    (buffers.slice(0, index)
+                        .reduce((acc, buf) => acc + buf.duration, 0))
+                    * sampleRate
+                );
+
+                // Copy the data
+                for (let i = 0; i < sourceChannelData.length; i++) {
+                    if (offsetSamples + i < finalChannelData.length) {
+                        finalChannelData[offsetSamples + i] = sourceChannelData[i];
+                    }
+                }
             }
-            offset += buffer.duration;
-        }
+        });
+
+        console.log('Buffer merge completed:', {
+            finalDuration: finalBuffer.duration,
+            finalChannels: finalBuffer.numberOfChannels,
+            finalLength: finalBuffer.length
+        });
 
         return finalBuffer;
     }
 
-    async startPlayback() {
-        if (!this.isInitialized) {
-            await this.initialize();
+    startPlayback() {
+        if (!this.audioContext) {
+            this.initialize();
         }
 
-        // Ensure AudioContext is resumed
         if (this.audioContext.state === 'suspended') {
-            await this.audioContext.resume();
+            this.audioContext.resume();
         }
 
+        // Stop any currently playing source
+        if (this.audioSource) {
+            try {
+                this.audioSource.stop();
+            } catch (e) {
+                // Ignore errors if source is already stopped
+            }
+        }
+
+        // Create and configure new source
         this.audioSource = this.audioContext.createBufferSource();
         this.audioSource.buffer = this.meditationBuffer;
         this.audioSource.connect(this.audioContext.destination);
 
+        // Add ended event listener
+        this.audioSource.onended = () => {
+            // Only reset if we've reached the end naturally
+            if (this.audioContext.currentTime - this.startTime >= this.totalDuration) {
+                this.isPlaying = false;
+                this.pauseTime = 0;
+                this.updatePlayPauseButton(false);
+            }
+        };
+
+        // Start playback from pause time
         const offset = this.pauseTime;
         this.audioSource.start(0, offset);
         this.startTime = this.audioContext.currentTime - offset;
         this.isPlaying = true;
-        this.pauseResumeBtn.textContent = 'Pause';
+        this.updatePlayPauseButton(true);
 
+        // Start progress updates
         this.startProgressUpdate();
     }
 
@@ -221,6 +268,7 @@ class AudioManager {
 
     togglePlayPause() {
         if (!this.isPlaying) {
+            // Reset if we've reached the end
             if (this.pauseTime >= this.totalDuration) {
                 this.pauseTime = 0;
             }
@@ -235,7 +283,7 @@ class AudioManager {
             this.audioSource.stop();
             this.pauseTime = this.audioContext.currentTime - this.startTime;
             this.isPlaying = false;
-            this.pauseResumeBtn.textContent = 'Resume';
+            this.updatePlayPauseButton(false);
             this.stopProgressUpdate();
         }
     }
@@ -251,15 +299,17 @@ class AudioManager {
         this.updateProgress(0);
     }
 
-    startProgressUpdate() {
-        this.stopProgressUpdate();
+     startProgressUpdate() {
+        this.stopProgressUpdate(); // Clear any existing interval
         this.progressInterval = setInterval(() => {
-            const currentTime = this.audioContext.currentTime - this.startTime;
-            const progress = (currentTime / this.totalDuration) * 100;
-            this.updateProgress(progress);
+            if (this.isPlaying) {
+                const currentTime = this.audioContext.currentTime - this.startTime;
+                const progress = (currentTime / this.totalDuration) * 100;
+                this.updateProgress(Math.min(progress, 100));
 
-            if (currentTime >= this.totalDuration) {
-                this.stopPlayback();
+                if (currentTime >= this.totalDuration) {
+                    this.stopPlayback();
+                }
             }
         }, 100);
     }
@@ -271,8 +321,11 @@ class AudioManager {
         }
     }
 
-    updateProgress(percentage) {
-        this.progressBar.style.width = `${Math.min(100, Math.max(0, percentage))}%`;
+    updateProgress(percentage, message) {
+        // This method should be implemented in your main app class
+        if (this.onProgress) {
+            this.onProgress(percentage, message);
+        }
     }
 
     // Clean up resources

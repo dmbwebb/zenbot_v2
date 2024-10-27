@@ -47,14 +47,19 @@
     </div>
 
     <div class="audio-player" id="audioPlayer">
-        <audio id="meditationAudio" controls>
-            Your browser does not support the audio element.
-        </audio>
         <div class="audio-controls">
-            <button id="pauseResumeBtn">Pause</button>
-            <button id="stopBtn">Stop</button>
+            <button id="playPauseBtn" class="icon-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="play-icon">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pause-icon" style="display: none;">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                </svg>
+            </button>
         </div>
     </div>
+
 </div>
 
 <!-- JavaScript files -->
@@ -63,75 +68,71 @@
 <script src="js/main.js"></script>
 
 
-
-!-- Add this simple test button right after your h1 -->
-    <button onclick="testDebug()">Test Debug Panel</button>
-
-    <!-- Debug Panel -->
-    <div id="debugPanel" style="position: fixed; bottom: 0; right: 0; width: 400px; height: 300px; background: rgba(0,0,0,0.9); color: white; padding: 10px; font-family: monospace; font-size: 12px; overflow-y: auto; z-index: 9999;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <strong>Debug Log</strong>
-            <div>
-                <button onclick="clearDebugLog()" style="background: #666; color: white; border: none; padding: 2px 5px; margin-right: 5px;">Clear</button>
-                <button onclick="toggleDebugPanel()" style="background: #666; color: white; border: none; padding: 2px 5px;">Toggle</button>
-            </div>
+<!-- Debug Panel -->
+<div id="debugPanel" style="display: none; position: fixed; bottom: 0; right: 0; width: 400px; height: 300px; background: rgba(0,0,0,0.9); color: white; padding: 10px; font-family: monospace; font-size: 12px; overflow-y: auto; z-index: 9999;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <strong>Debug Log</strong>
+        <div>
+            <button onclick="document.getElementById('debugLog').innerHTML = ''">Clear</button>
+            <button onclick="this.parentElement.parentElement.parentElement.style.display = 'none'">Toggle</button>
         </div>
-        <div id="debugLog"></div>
     </div>
+    <div id="debugLog"></div>
+</div>
 
-    <!-- Debug Scripts - Place this BEFORE your other script imports -->
-    <script>
-        // Test function
-        function testDebug() {
-            console.log("Test button clicked");
-            debugLog("Test message from button click");
+<!-- Debug Scripts - Place this BEFORE your other script imports -->
+<script>
+    // Test function
+    function testDebug() {
+        console.log("Test button clicked");
+        debugLog("Test message from button click");
+    }
+
+    // Debug functions
+    function debugLog(message, type = 'info') {
+        console.log("debugLog called with:", message); // Basic console log to verify function is called
+
+        const debugLog = document.getElementById('debugLog');
+        if (!debugLog) {
+            console.error("Debug log element not found!");
+            return;
         }
 
-        // Debug functions
-        function debugLog(message, type = 'info') {
-            console.log("debugLog called with:", message); // Basic console log to verify function is called
+        const entry = document.createElement('div');
+        entry.style.borderBottom = '1px solid #444';
+        entry.style.padding = '5px 0';
+        entry.style.color = type === 'error' ? '#ff6b6b' :
+            type === 'warning' ? '#ffd93d' : '#fff';
 
-            const debugLog = document.getElementById('debugLog');
-            if (!debugLog) {
-                console.error("Debug log element not found!");
-                return;
-            }
+        const time = new Date().toLocaleTimeString();
+        entry.innerHTML = `<span style="color: #888">[${time}]</span> ${message}`;
 
-            const entry = document.createElement('div');
-            entry.style.borderBottom = '1px solid #444';
-            entry.style.padding = '5px 0';
-            entry.style.color = type === 'error' ? '#ff6b6b' :
-                               type === 'warning' ? '#ffd93d' : '#fff';
+        debugLog.appendChild(entry);
+        debugLog.scrollTop = debugLog.scrollHeight;
 
-            const time = new Date().toLocaleTimeString();
-            entry.innerHTML = `<span style="color: #888">[${time}]</span> ${message}`;
+        // Also log to console
+        console.log(`[Debug ${type}]:`, message);
+    }
 
-            debugLog.appendChild(entry);
-            debugLog.scrollTop = debugLog.scrollHeight;
-
-            // Also log to console
-            console.log(`[Debug ${type}]:`, message);
+    function clearDebugLog() {
+        const debugLog = document.getElementById('debugLog');
+        if (debugLog) {
+            debugLog.innerHTML = '';
         }
+    }
 
-        function clearDebugLog() {
-            const debugLog = document.getElementById('debugLog');
-            if (debugLog) {
-                debugLog.innerHTML = '';
-            }
+    function toggleDebugPanel() {
+        const panel = document.getElementById('debugPanel');
+        if (panel) {
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
         }
+    }
 
-        function toggleDebugPanel() {
-            const panel = document.getElementById('debugPanel');
-            if (panel) {
-                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-            }
-        }
-
-        // Test debug panel on load
-        window.addEventListener('DOMContentLoaded', (event) => {
-            console.log("Page loaded, testing debug panel...");
-            debugLog("Debug panel initialized");
-        });
-    </script>
+    // Test debug panel on load
+    window.addEventListener('DOMContentLoaded', (event) => {
+        console.log("Page loaded, testing debug panel...");
+        debugLog("Debug panel initialized");
+    });
+</script>
 </body>
 </html>

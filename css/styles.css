@@ -8,6 +8,8 @@ body {
     background-color: #f0f4f8;
 }
 
+
+
 .container {
     background-color: white;
     padding: 2rem;
@@ -71,6 +73,33 @@ button:disabled {
 .progress-container {
     display: none;
     margin: 2rem 0;
+}
+
+.icon-button {
+    background: rgba(52, 152, 219, 0.1);  /* Faded blue background */
+    border: 2px solid rgba(52, 152, 219, 0.5);  /* Faded blue border */
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: #3498db;  /* Blue color for the icon */
+}
+
+.icon-button:hover {
+    background: #3498db;
+    border-color: #3498db;
+    color: white;
+}
+
+.icon-button svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;  /* This makes the icon take the color property value */
 }
 
 .progress-bar {

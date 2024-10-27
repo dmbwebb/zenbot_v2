@@ -1,9 +1,25 @@
 // Debug configuration
-const DEBUG = true;  // Set to false in production
+const DEBUG = false;  // Set to false in production
+
+function setupDebugPanel() {
+    const debugPanel = document.getElementById('debugPanel');
+    if (debugPanel) {
+        debugPanel.style.display = DEBUG ? 'block' : 'none';
+    }
+}
 
 function debugLog(...args) {
     if (DEBUG) {
         console.log('[ZenBot Debug]:', ...args);
+        // Only append to debug log if panel exists and is visible
+        const debugLog = document.getElementById('debugLog');
+        if (debugLog && debugLog.parentElement.style.display !== 'none') {
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${new Date().toISOString()}] ${args.join(' ')}`;
+            debugLog.appendChild(logEntry);
+            // Auto-scroll to bottom
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
     }
 }
 
@@ -19,6 +35,7 @@ window.addEventListener('error', (event) => {
         }
     }
 });
+
 
 // Add debug information to each major step
 async function testAudioContext() {
@@ -80,6 +97,13 @@ class MeditationApp {
         initMessage.style.marginBottom = '10px';
         document.body.insertBefore(initMessage, document.body.firstChild);
 
+        audioManager.onProgress = (percentage, message) => {
+            this.updateProgress(percentage);
+            if (message) {
+                this.progressText.textContent = message;
+            }
+        };
+
         // Remove the message after first click
         document.addEventListener('click', () => {
             initMessage.style.display = 'none';
@@ -120,52 +144,34 @@ class MeditationApp {
     }
 
     async generateMeditation(prompt, duration) {
-    debugLog('Starting meditation generation...');
-    this.showProgress('Generating meditation script...');
-    this.updateProgress(0);
-
-    try {
-        // Generate the meditation script
-        debugLog('Generating meditation script from OpenAI...');
-        this.currentScript = await apiManager.generateMeditationScript(prompt, duration);
-        debugLog('Script generated successfully');
-        debugLog(`Script content: ${this.currentScript.substring(0, 100)}...`);
-        this.updateProgress(20);
-
-        // Initialize audio context
-        debugLog('Initializing audio context...');
-        await audioManager.initialize();
-        debugLog(`Audio context state: ${audioManager.audioContext.state}`);
-
-        // Process the script into audio
-        debugLog('Starting audio processing...');
-        this.showProgress('Converting speech to audio...');
+        this.showProgress('Generating meditation script...');
+        this.updateProgress(0);
 
         try {
+            // Generate the meditation script
+            this.currentScript = await apiManager.generateMeditationScript(prompt, duration);
+            this.updateProgress(20);
+
+            // Process the script into audio
+            this.showProgress('Converting speech to audio...');
+            await audioManager.initialize();
             await audioManager.processScript(this.currentScript);
-            debugLog('Audio processing completed successfully');
+
+            // Show success state
+            this.hideProgress();
+            this.enablePlayback();
+
         } catch (error) {
-            debugLog(`Error in audio processing: ${error.message}`, 'error');
+            console.error('Error in meditation generation:', error);
+            apiManager.showError(error.message);
+            this.hideProgress();
             throw error;
         }
-
-        // Show success state
-        this.hideProgress();
-        this.enablePlayback();
-        debugLog('Meditation generation completed successfully');
-
-    } catch (error) {
-        debugLog(`Error in meditation generation: ${error.message}`, 'error');
-        apiManager.showError(error.message);
-        this.hideProgress();
-        throw error;
     }
-}
 
     showProgress(message) {
         this.progressContainer.style.display = 'block';
         this.progressText.textContent = message;
-        // Disable the form while processing
         this.meditationForm.querySelector('button[type="submit"]').disabled = true;
     }
 
@@ -175,7 +181,7 @@ class MeditationApp {
         this.meditationForm.querySelector('button[type="submit"]').disabled = false;
     }
 
-    updateProgress(percentage) {
+     updateProgress(percentage) {
         this.progressFill.style.width = `${percentage}%`;
     }
 
@@ -243,6 +249,25 @@ document.addEventListener('keydown', (e) => {
             case 'escape':
                 audioManager.stopPlayback();
                 break;
+        }
+    }
+});
+
+// Initialize debug panel on page load
+window.addEventListener('DOMContentLoaded', async () => {
+    setupDebugPanel();
+
+    if (DEBUG) {
+        debugLog('Running diagnostic tests...');
+
+        const tests = [
+            { name: 'Audio Context', fn: testAudioContext },
+            { name: 'Asset Loading', fn: testAssetLoading }
+        ];
+
+        for (const test of tests) {
+            const result = await test.fn();
+            debugLog(`${test.name} test:`, result ? 'PASSED' : 'FAILED');
         }
     }
 });
