@@ -1,17 +1,94 @@
+// Debug configuration
+const DEBUG = true;  // Set to false in production
+
+function debugLog(...args) {
+    if (DEBUG) {
+        console.log('[ZenBot Debug]:', ...args);
+    }
+}
+
+// Add error tracking
+window.addEventListener('error', (event) => {
+    if (DEBUG) {
+        console.error('[ZenBot Error]:', event.error);
+        // Show error in UI
+        const errorMessage = document.getElementById('errorMessage');
+        if (errorMessage) {
+            errorMessage.textContent = `Error: ${event.error.message}`;
+            errorMessage.style.display = 'block';
+        }
+    }
+});
+
+// Add debug information to each major step
+async function testAudioContext() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        debugLog('AudioContext initialized successfully');
+        return true;
+    } catch (error) {
+        debugLog('AudioContext initialization failed:', error);
+        return false;
+    }
+}
+
+// Test file accessibility
+async function testAssetLoading() {
+    try {
+        const response = await fetch('/assets/meditation-bell.mp3');
+        if (!response.ok) throw new Error('Meditation bell not found');
+        debugLog('Meditation bell accessible');
+        return true;
+    } catch (error) {
+        debugLog('Asset loading failed:', error);
+        return false;
+    }
+}
+
+// Run tests on page load
+window.addEventListener('DOMContentLoaded', async () => {
+    debugLog('Running diagnostic tests...');
+
+    const tests = [
+        { name: 'Audio Context', fn: testAudioContext },
+        { name: 'Asset Loading', fn: testAssetLoading }
+    ];
+
+    for (const test of tests) {
+        const result = await test.fn();
+        debugLog(`${test.name} test:`, result ? 'PASSED' : 'FAILED');
+    }
+});
+
 class MeditationApp {
     constructor() {
         this.meditationForm = document.getElementById('meditationForm');
         this.progressContainer = document.getElementById('progressContainer');
         this.progressText = document.getElementById('progressText');
         this.progressFill = document.getElementById('progressFill');
-        
+
         this.currentScript = null;
         this.setupEventListeners();
+
+        // Add initialization message
+        const initMessage = document.createElement('div');
+        initMessage.textContent = 'Click anywhere on the page to enable audio features';
+        initMessage.style.textAlign = 'center';
+        initMessage.style.padding = '10px';
+        initMessage.style.backgroundColor = '#fff3cd';
+        initMessage.style.color = '#856404';
+        initMessage.style.marginBottom = '10px';
+        document.body.insertBefore(initMessage, document.body.firstChild);
+
+        // Remove the message after first click
+        document.addEventListener('click', () => {
+            initMessage.style.display = 'none';
+        }, { once: true });
     }
 
     setupEventListeners() {
         this.meditationForm.addEventListener('submit', (e) => this.handleMeditationSubmit(e));
-        
+
         // Handle visibility change to manage audio context
         document.addEventListener('visibilitychange', () => {
             if (document.hidden && audioManager.isPlaying) {
@@ -20,9 +97,10 @@ class MeditationApp {
         });
     }
 
+    // Update the handleMeditationSubmit method
     async handleMeditationSubmit(event) {
         event.preventDefault();
-        
+
         const prompt = document.getElementById('prompt').value;
         const duration = parseInt(document.getElementById('duration').value);
 
@@ -32,6 +110,8 @@ class MeditationApp {
         }
 
         try {
+            // Ensure audio context is initialized
+            await audioManager.ensureAudioContext();
             await this.generateMeditation(prompt, duration);
         } catch (error) {
             apiManager.showError(`Failed to generate meditation: ${error.message}`);
@@ -40,30 +120,47 @@ class MeditationApp {
     }
 
     async generateMeditation(prompt, duration) {
-        this.showProgress('Generating meditation script...');
-        this.updateProgress(0);
+    debugLog('Starting meditation generation...');
+    this.showProgress('Generating meditation script...');
+    this.updateProgress(0);
+
+    try {
+        // Generate the meditation script
+        debugLog('Generating meditation script from OpenAI...');
+        this.currentScript = await apiManager.generateMeditationScript(prompt, duration);
+        debugLog('Script generated successfully');
+        debugLog(`Script content: ${this.currentScript.substring(0, 100)}...`);
+        this.updateProgress(20);
+
+        // Initialize audio context
+        debugLog('Initializing audio context...');
+        await audioManager.initialize();
+        debugLog(`Audio context state: ${audioManager.audioContext.state}`);
+
+        // Process the script into audio
+        debugLog('Starting audio processing...');
+        this.showProgress('Converting speech to audio...');
 
         try {
-            // Generate the meditation script
-            this.currentScript = await apiManager.generateMeditationScript(prompt, duration);
-            this.updateProgress(20);
-            
-            // Split the script and start processing audio
-            this.showProgress('Converting speech to audio...');
-            await audioManager.initialize();
             await audioManager.processScript(this.currentScript);
-            
-            // Show success state
-            this.hideProgress();
-            this.enablePlayback();
-
+            debugLog('Audio processing completed successfully');
         } catch (error) {
-            console.error('Error in meditation generation:', error);
-            apiManager.showError(error.message);
-            this.hideProgress();
+            debugLog(`Error in audio processing: ${error.message}`, 'error');
             throw error;
         }
+
+        // Show success state
+        this.hideProgress();
+        this.enablePlayback();
+        debugLog('Meditation generation completed successfully');
+
+    } catch (error) {
+        debugLog(`Error in meditation generation: ${error.message}`, 'error');
+        apiManager.showError(error.message);
+        this.hideProgress();
+        throw error;
     }
+}
 
     showProgress(message) {
         this.progressContainer.style.display = 'block';

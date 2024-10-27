@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZenBot Debug Panel</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .test-item { margin: 10px 0; padding: 10px; border: 1px solid #ddd; }
+        .pass { background: #e7f5e7; }
+        .fail { background: #ffe6e6; }
+        .test-btn { margin: 5px; }
+        #log { 
+            background: #f5f5f5;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>ZenBot Debug Panel</h1>
+    
+    <div id="tests">
+        <h2>Component Tests</h2>
+        <button onclick="runAllTests()">Run All Tests</button>
+        <div id="testResults"></div>
+    </div>
+
+    <div>
+        <h2>Debug Log</h2>
+        <button onclick="clearLog()">Clear Log</button>
+        <div id="log"></div>
+    </div>
+
+    <script>
+        const testResults = document.getElementById('testResults');
+        const log = document.getElementById('log');
+
+        function addToLog(message, type = 'info') {
+            const line = document.createElement('div');
+            line.textContent = `[${new Date().toISOString()}] ${message}`;
+            line.style.color = type === 'error' ? 'red' : 'black';
+            log.appendChild(line);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() {
+            log.innerHTML = '';
+        }
+
+        async function runTest(name, testFn) {
+            const div = document.createElement('div');
+            div.className = 'test-item';
+            div.innerHTML = `<strong>${name}</strong>: Testing...`;
+            testResults.appendChild(div);
+
+            try {
+                const result = await testFn();
+                div.className = `test-item ${result ? 'pass' : 'fail'}`;
+                div.innerHTML = `<strong>${name}</strong>: ${result ? 'PASS' : 'FAIL'}`;
+                addToLog(`${name}: ${result ? 'PASSED' : 'FAILED'}`);
+            } catch (error) {
+                div.className = 'test-item fail';
+                div.innerHTML = `<strong>${name}</strong>: ERROR - ${error.message}`;
+                addToLog(`${name}: ERROR - ${error.message}`, 'error');
+            }
+        }
+
+        async function testOpenAIKey(key) {
+            try {
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${key}`
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4-turbo",
+                        messages: [{ role: "user", content: "test" }],
+                        max_tokens: 1
+                    })
+                });
+                return response.ok;
+            } catch (error) {
+                console.error('API test failed:', error);
+                return false;
+            }
+        }
+
+        async function runAllTests() {
+            testResults.innerHTML = '';
+            const tests = [
+                {
+                    name: 'AudioContext',
+                    fn: async () => {
+                        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                        return ctx.state === 'running' || ctx.state === 'suspended';
+                    }
+                },
+                {
+                    name: 'Service Worker',
+                    fn: async () => 'serviceWorker' in navigator
+                },
+                {
+                    name: 'Meditation Bell',
+                    fn: async () => {
+                        const response = await fetch('/assets/meditation-bell.mp3');
+                        return response.ok;
+                    }
+                }
+            ];
+
+            for (const test of tests) {
+                await runTest(test.name, test.fn);
+            }
+        }
+
+        // Run tests on load
+        runAllTests();
+    </script>
+</body>
+</html>

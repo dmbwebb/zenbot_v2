@@ -8,58 +8,130 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <h1>🧘 ZenBot</h1>
+<h1>🧘 ZenBot</h1>
 
-    <div class="container">
-        <form id="apiKeyForm">
-            <div class="form-group">
-                <label for="apiKey">OpenAI API Key:</label>
-                <input type="password" id="apiKey" name="apiKey" required>
-            </div>
-            <div class="checkbox-group">
-                <input type="checkbox" id="rememberKey" name="rememberKey">
-                <label for="rememberKey">Remember API key for this session</label>
-            </div>
-            <button type="submit">Save API Key</button>
-        </form>
+<div class="container">
+    <form id="apiKeyForm">
+        <div class="form-group">
+            <label for="apiKey">OpenAI API Key:</label>
+            <input type="password" id="apiKey" name="apiKey" required>
+        </div>
+        <div class="checkbox-group">
+            <input type="checkbox" id="rememberKey" name="rememberKey">
+            <label for="rememberKey">Remember API key for this session</label>
+        </div>
+        <button type="submit">Save API Key</button>
+    </form>
+</div>
+
+<div class="container">
+    <form id="meditationForm">
+        <div class="form-group">
+            <label for="prompt">Meditation topic:</label>
+            <input type="text" id="prompt" name="prompt" required>
+        </div>
+        <div class="form-group">
+            <label for="duration">Duration (minutes):</label>
+            <input type="number" id="duration" name="duration" min="1" max="60" required>
+        </div>
+        <button type="submit" disabled>Generate Meditation</button>
+    </form>
+
+    <div class="error-message" id="errorMessage"></div>
+
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">Generating meditation script...</div>
     </div>
 
-    <div class="container">
-        <form id="meditationForm">
-            <div class="form-group">
-                <label for="prompt">Meditation topic:</label>
-                <input type="text" id="prompt" name="prompt" required>
-            </div>
-            <div class="form-group">
-                <label for="duration">Duration (minutes):</label>
-                <input type="number" id="duration" name="duration" min="1" max="60" required>
-            </div>
-            <button type="submit" disabled>Generate Meditation</button>
-        </form>
-
-        <div class="error-message" id="errorMessage"></div>
-
-        <div class="progress-container" id="progressContainer">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="progress-text" id="progressText">Generating meditation script...</div>
-        </div>
-
-        <div class="audio-player" id="audioPlayer">
-            <audio id="meditationAudio" controls>
-                Your browser does not support the audio element.
-            </audio>
-            <div class="audio-controls">
-                <button id="pauseResumeBtn">Pause</button>
-                <button id="stopBtn">Stop</button>
-            </div>
+    <div class="audio-player" id="audioPlayer">
+        <audio id="meditationAudio" controls>
+            Your browser does not support the audio element.
+        </audio>
+        <div class="audio-controls">
+            <button id="pauseResumeBtn">Pause</button>
+            <button id="stopBtn">Stop</button>
         </div>
     </div>
+</div>
 
-    <!-- JavaScript files -->
-    <script src="js/api.js"></script>
-    <script src="js/audio.js"></script>
-    <script src="js/main.js"></script>
+<!-- JavaScript files -->
+<script src="js/api.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/main.js"></script>
+
+
+
+!-- Add this simple test button right after your h1 -->
+    <button onclick="testDebug()">Test Debug Panel</button>
+
+    <!-- Debug Panel -->
+    <div id="debugPanel" style="position: fixed; bottom: 0; right: 0; width: 400px; height: 300px; background: rgba(0,0,0,0.9); color: white; padding: 10px; font-family: monospace; font-size: 12px; overflow-y: auto; z-index: 9999;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <strong>Debug Log</strong>
+            <div>
+                <button onclick="clearDebugLog()" style="background: #666; color: white; border: none; padding: 2px 5px; margin-right: 5px;">Clear</button>
+                <button onclick="toggleDebugPanel()" style="background: #666; color: white; border: none; padding: 2px 5px;">Toggle</button>
+            </div>
+        </div>
+        <div id="debugLog"></div>
+    </div>
+
+    <!-- Debug Scripts - Place this BEFORE your other script imports -->
+    <script>
+        // Test function
+        function testDebug() {
+            console.log("Test button clicked");
+            debugLog("Test message from button click");
+        }
+
+        // Debug functions
+        function debugLog(message, type = 'info') {
+            console.log("debugLog called with:", message); // Basic console log to verify function is called
+
+            const debugLog = document.getElementById('debugLog');
+            if (!debugLog) {
+                console.error("Debug log element not found!");
+                return;
+            }
+
+            const entry = document.createElement('div');
+            entry.style.borderBottom = '1px solid #444';
+            entry.style.padding = '5px 0';
+            entry.style.color = type === 'error' ? '#ff6b6b' :
+                               type === 'warning' ? '#ffd93d' : '#fff';
+
+            const time = new Date().toLocaleTimeString();
+            entry.innerHTML = `<span style="color: #888">[${time}]</span> ${message}`;
+
+            debugLog.appendChild(entry);
+            debugLog.scrollTop = debugLog.scrollHeight;
+
+            // Also log to console
+            console.log(`[Debug ${type}]:`, message);
+        }
+
+        function clearDebugLog() {
+            const debugLog = document.getElementById('debugLog');
+            if (debugLog) {
+                debugLog.innerHTML = '';
+            }
+        }
+
+        function toggleDebugPanel() {
+            const panel = document.getElementById('debugPanel');
+            if (panel) {
+                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        // Test debug panel on load
+        window.addEventListener('DOMContentLoaded', (event) => {
+            console.log("Page loaded, testing debug panel...");
+            debugLog("Debug panel initialized");
+        });
+    </script>
 </body>
 </html>
