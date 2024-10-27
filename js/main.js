@@ -87,27 +87,12 @@ class MeditationApp {
         this.currentScript = null;
         this.setupEventListeners();
 
-        // Add initialization message
-        const initMessage = document.createElement('div');
-        initMessage.textContent = 'Click anywhere on the page to enable audio features';
-        initMessage.style.textAlign = 'center';
-        initMessage.style.padding = '10px';
-        initMessage.style.backgroundColor = '#fff3cd';
-        initMessage.style.color = '#856404';
-        initMessage.style.marginBottom = '10px';
-        document.body.insertBefore(initMessage, document.body.firstChild);
-
         audioManager.onProgress = (percentage, message) => {
             this.updateProgress(percentage);
             if (message) {
                 this.progressText.textContent = message;
             }
         };
-
-        // Remove the message after first click
-        document.addEventListener('click', () => {
-            initMessage.style.display = 'none';
-        }, { once: true });
     }
 
     setupEventListeners() {
@@ -121,7 +106,6 @@ class MeditationApp {
         });
     }
 
-    // Update the handleMeditationSubmit method
     async handleMeditationSubmit(event) {
         event.preventDefault();
 
@@ -181,7 +165,7 @@ class MeditationApp {
         this.meditationForm.querySelector('button[type="submit"]').disabled = false;
     }
 
-     updateProgress(percentage) {
+    updateProgress(percentage) {
         this.progressFill.style.width = `${percentage}%`;
     }
 
