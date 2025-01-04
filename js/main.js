@@ -111,6 +111,7 @@ class MeditationApp {
 
         const prompt = document.getElementById('prompt').value;
         const duration = parseInt(document.getElementById('duration').value);
+        const guidance = document.getElementById('guidance').value;  // <- ADD THIS
 
         if (!prompt || !duration) {
             apiManager.showError('Please fill in all fields');
@@ -118,22 +119,26 @@ class MeditationApp {
         }
 
         try {
-            // Ensure audio context is initialized
             await audioManager.ensureAudioContext();
-            await this.generateMeditation(prompt, duration);
+            // Pass `guidance` to the generateMeditation call
+            await this.generateMeditation(prompt, duration, guidance);
         } catch (error) {
             apiManager.showError(`Failed to generate meditation: ${error.message}`);
             this.hideProgress();
         }
     }
 
-    async generateMeditation(prompt, duration) {
+    async generateMeditation(prompt, duration, guidance) {
         this.showProgress('Generating meditation script...');
         this.updateProgress(0);
 
         try {
             // Generate the meditation script
-            this.currentScript = await apiManager.generateMeditationScript(prompt, duration);
+            this.currentScript = await apiManager.generateMeditationScript(prompt, duration, guidance);
+
+            // ADD THIS LINE TO LOG THE ENTIRE SCRIPT
+            console.log('Generated meditation script:', this.currentScript);
+
             this.updateProgress(20);
 
             // Process the script into audio
@@ -144,7 +149,6 @@ class MeditationApp {
             // Show success state
             this.hideProgress();
             this.enablePlayback();
-
         } catch (error) {
             console.error('Error in meditation generation:', error);
             apiManager.showError(error.message);

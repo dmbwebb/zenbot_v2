@@ -27,13 +27,22 @@
 <div class="container">
     <form id="meditationForm">
         <div class="form-group">
-            <label for="prompt">Meditation topic:</label>
+            <label for="prompt">What topic?</label>
             <input type="text" id="prompt" name="prompt" required>
         </div>
         <div class="form-group">
-            <label for="duration">Duration (minutes):</label>
+            <label for="duration">How many minutes?</label>
             <input type="number" id="duration" name="duration" min="1" max="60" required>
         </div>
+        <!-- NEW guidance dropdown -->
+        <div class="form-group">
+            <label for="guidance">How much guidance?</label>
+            <select id="guidance" name="guidance">
+                <option value="less" selected>Less</option>
+                <option value="more">More</option>
+            </select>
+        </div>
+        <!-- END NEW -->
         <button type="submit" disabled>Generate Meditation</button>
     </form>
 

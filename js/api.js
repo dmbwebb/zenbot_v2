@@ -25,9 +25,9 @@ class APIManager {
         event.preventDefault();
         const apiKeyInput = document.getElementById('apiKey');
         const rememberKey = document.getElementById('rememberKey');
-        
+
         this.apiKey = apiKeyInput.value.trim();
-        
+
         if (rememberKey.checked) {
             sessionStorage.setItem('openai_api_key', this.apiKey);
         } else {
@@ -74,8 +74,27 @@ class APIManager {
         }
     }
 
-    async generateMeditationScript(prompt, duration) {
+    async generateMeditationScript(prompt, duration, guidance) {
         try {
+            // Decide which sentence to use based on the guidance option
+            let guidanceSentence = '';
+            if (guidance === 'less') {
+                guidanceSentence = `
+                There should be plenty of long pauses between guidance. 
+                Do not guide too much, use instructions sparingly. 
+                Have about 4 instructions for each meditation OR LESS, 
+                with only pauses between. ONLY 4 instructions per meditation.
+            `;
+            } else {
+                // guidance === 'more'
+                guidanceSentence = `
+                Include a moderate amount of guidance with some pauses. 
+                There should be about 6-7 instructions for each meditation, 
+                with some pauses in between.
+            `;
+            }
+
+            // Build the content for the prompt, inserting the guidance sentence
             const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
                 headers: {
@@ -84,6 +103,8 @@ class APIManager {
                 },
                 body: JSON.stringify({
                     model: "gpt-4-turbo",
+                    // Only return one script at a time:
+                    n: 1,
                     messages: [
                         {
                             role: "system",
@@ -91,18 +112,38 @@ class APIManager {
                         },
                         {
                             role: "user",
-                            content: `Create a ${duration}-minute guided meditation on ${prompt}. 
+                            content: `
+                            Create a ${duration}-minute guided meditation on ${prompt}.
                             Include [PAUSE X] indicators for moments of silence, where X is the duration of the pause in minutes.
-                            There should be plenty of long pauses between guidance. Do not guide too much, use instructions sparingly. Have about 4 instructions for each meditation OR LESS, with only pauses between. ONLY 4 instructions per meditation.
                             The pauses should add up to the total duration.
+                            ${guidanceSentence}
+                            
                             The style of meditation should be inspired by the teachings of Thich Nhat Hanh and Joseph Goldstein, but do not mention this. Can also take inspiration from Vipassana techniques.
-                            The aim is not NOT 'relaxation' or 'stress-reduction', but to cultivate mindfulness and awareness - to be present with whatever arises in the moment, in all its detail and subtlety. No visualisations or imaginations.
+
+
+                            The aim is NOT 'relaxation' or 'stress-reduction', 
+                            but to cultivate mindfulness and awareness—to be present 
+                            with whatever arises in the moment, in all its detail and subtlety.
+                            
                             The meditation should be aimed at intermediate to advanced practitioners.
-                            Use 'mental noting' - ask the listener to note the sensations, thoughts, and emotions that arise.
-                            Do not add numbers, or titles, so that the guided meditation flows nicely when said out loud.
-                            Make sure to actually start the meditation before pausing too soon. Give instructions straight away for the meditation rather than just welcoming.
+
+                            Use 'mental noting'—ask the listener to note the sensations, 
+                            thoughts, and emotions that arise.
+
+                            Do not add numbers or titles, so that the guided meditation 
+                            flows nicely when said out loud.
+
+                            Make sure to actually start the meditation 
+                            before pausing too soon. Give instructions straight away 
+                            for the meditation rather than just welcoming.
+
                             Be precise and concise in your guidance.
-                            Be a little bit surprising in your guidance, with some novel ideas or ways of phrasing things. Keep it fresh and interesting. Have some surprising and precise insights about how to meditate.`
+
+                            Be a little bit surprising in your guidance, 
+                            with some novel ideas or ways of phrasing things.
+                            Keep it fresh and interesting. Have some surprising and 
+                            precise insights about how to meditate.
+                        `
                         }
                     ]
                 })
@@ -113,6 +154,7 @@ class APIManager {
             }
 
             const data = await response.json();
+            // Return only the first script:
             return data.choices[0].message.content;
         } catch (error) {
             console.error('Error generating meditation script:', error);
