@@ -121,6 +121,7 @@ class APIManager {
                             The aim is NOT 'relaxation' or 'stress-reduction', 
                             but to cultivate mindfulness and awareness—to be present 
                             with whatever arises in the moment, in all its detail and subtlety.
+                            Be very precise in your guidance, with a focus on noticing exactly what is happening in the present moment.
                             
                             The meditation should be aimed at intermediate to advanced practitioners.
 
