@@ -14,7 +14,6 @@ class APIManager {
             this.apiKey = savedKey;
             this.enableMeditationForm();
             document.getElementById('apiKey').value = savedKey;
-            document.getElementById('rememberKey').checked = true;
         }
     }
 
@@ -26,17 +25,12 @@ class APIManager {
     handleApiKeySubmit(event) {
         event.preventDefault();
         const apiKeyInput = document.getElementById('apiKey');
-        const rememberKey = document.getElementById('rememberKey');
-
         this.apiKey = apiKeyInput.value.trim();
 
-        if (rememberKey.checked) {
-            sessionStorage.setItem('openai_api_key', this.apiKey);
-        } else {
-            sessionStorage.removeItem('openai_api_key');
-        }
+        // Always save the API key in session storage
+        sessionStorage.setItem('openai_api_key', this.apiKey);
 
-        // Test the API key before enabling the form
+        // Test the API key before enabling the meditation form
         this.testApiKey()
             .then(isValid => {
                 if (isValid) {
