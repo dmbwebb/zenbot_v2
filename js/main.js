@@ -1,5 +1,8 @@
 /* main.js */
-// Debug configuration
+
+// Create a global NoSleep instance
+window.noSleep = new NoSleep();
+
 const DEBUG = false;
 
 function setupDebugPanel() {
@@ -128,16 +131,24 @@ class MeditationApp {
     }
 
     async generateMeditation(prompt, duration, guidance) {
+        // Enable wake lock immediately when starting meditation generation
+        if (window.noSleep) {
+            noSleep.enable();
+        }
+
         this.showProgress('Generating meditation script...');
         this.updateProgress(0);
 
         try {
+            // Generate the meditation script
             this.currentScript = await apiManager.generateMeditationScript(prompt, duration, guidance);
             console.log('Generated meditation script:', this.currentScript);
             this.updateProgress(20);
+
             this.showProgress('Converting speech to audio...');
             await audioManager.initialize();
             await audioManager.processScript(this.currentScript);
+
             this.hideProgress();
             this.enablePlayback();
         } catch (error) {
@@ -186,7 +197,9 @@ window.addEventListener('DOMContentLoaded', () => {
         { feature: window.Blob, name: 'Blob API' }
     ];
 
-    const missingFeatures = requiredFeatures.filter(({feature}) => !feature).map(({name}) => name);
+    const missingFeatures = requiredFeatures
+        .filter(({ feature }) => !feature)
+        .map(({ name }) => name);
 
     if (missingFeatures.length > 0) {
         apiManager.showError(
@@ -209,7 +222,7 @@ if ('serviceWorker' in navigator) {
 
 document.addEventListener('keydown', (e) => {
     if (audioManager.isPlaying || audioManager.pauseTime > 0) {
-        switch(e.key.toLowerCase()) {
+        switch (e.key.toLowerCase()) {
             case ' ':
                 e.preventDefault();
                 audioManager.togglePlayPause();
