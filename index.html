@@ -1,147 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧘 ZenBot</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧘 ZenBot</title>
+  <!-- Load Prata for headings and Lato for body text -->
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Prata&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Include NoSleep.js from a CDN -->
+  <script src="https://unpkg.com/nosleep.js@0.12.0/dist/NoSleep.min.js"></script>
 </head>
 <body>
-<h1>🧘 ZenBot</h1>
+  <h1>🧘 ZenBot</h1>
 
-<div class="container">
+  <div class="container">
     <form id="apiKeyForm">
-        <div class="form-group">
-            <label for="apiKey">OpenAI API Key:</label>
-            <input type="password" id="apiKey" name="apiKey" required>
-        </div>
-        <div class="checkbox-group">
-            <input type="checkbox" id="rememberKey" name="rememberKey">
-            <label for="rememberKey">Remember API key for this session</label>
-        </div>
-        <button type="submit">Save API Key</button>
+      <div class="form-group">
+        <label for="apiKey">OpenAI API Key:</label>
+        <input type="password" id="apiKey" name="apiKey" required>
+      </div>
+      <!-- Removed the "Remember this API key" checkbox section -->
+      <button type="submit">Save API Key</button>
     </form>
-</div>
+  </div>
 
-<div class="container">
+  <div class="container">
     <form id="meditationForm">
-        <div class="form-group">
-            <label for="prompt">What topic?</label>
-            <input type="text" id="prompt" name="prompt" required>
-        </div>
-        <div class="form-group">
-            <label for="duration">How many minutes?</label>
-            <input type="number" id="duration" name="duration" min="1" max="60" required>
-        </div>
-        <!-- NEW guidance dropdown -->
-        <div class="form-group">
-            <label for="guidance">How much guidance?</label>
-            <select id="guidance" name="guidance">
-                <option value="less" selected>Less</option>
-                <option value="more">More</option>
-            </select>
-        </div>
-        <!-- END NEW -->
-        <button type="submit" disabled>Generate Meditation</button>
+      <div class="form-group">
+        <label for="prompt">What topic?</label>
+        <input type="text" id="prompt" name="prompt" required>
+      </div>
+      <div class="form-group">
+        <label for="duration">How many minutes?</label>
+        <input type="number" id="duration" name="duration" min="1" max="60" required>
+      </div>
+      <div class="form-group">
+        <label for="guidance">How much guidance?</label>
+        <select id="guidance" name="guidance">
+          <option value="less" selected>Less</option>
+          <option value="more">More</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="voiceSelect">Choose Voice:</label>
+        <select id="voiceSelect" name="voiceSelect">
+          <option value="alloy">Alloy</option>
+          <option value="ash">Ash</option>
+          <option value="coral">Coral</option>
+          <option value="echo">Echo</option>
+          <option value="onyx" selected>Onyx</option>
+          <option value="nova">Nova</option>
+          <option value="sage">Sage</option>
+          <option value="shimmer">Shimmer</option>
+          <option value="random">Random</option>
+        </select>
+      </div>
+      <button type="submit" disabled>Generate Meditation</button>
     </form>
 
     <div class="error-message" id="errorMessage"></div>
 
     <div class="progress-container" id="progressContainer">
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <div class="progress-text" id="progressText">Generating meditation script...</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-text" id="progressText">Generating meditation script...</div>
     </div>
 
     <div class="audio-player" id="audioPlayer">
-        <div class="audio-controls">
-            <button id="playPauseBtn" class="icon-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="play-icon">
-                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pause-icon" style="display: none;">
-                    <rect x="6" y="4" width="4" height="16"></rect>
-                    <rect x="14" y="4" width="4" height="16"></rect>
-                </svg>
-            </button>
-        </div>
+      <div class="audio-controls">
+        <button id="playPauseBtn" class="icon-button">
+          <svg xmlns="http://www.w3.org/2000/svg" class="play-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" class="pause-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+            <rect x="6" y="4" width="4" height="16"></rect>
+            <rect x="14" y="4" width="4" height="16"></rect>
+          </svg>
+        </button>
+      </div>
     </div>
+  </div>
 
-</div>
+  <!-- JavaScript files -->
+  <script src="js/api.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/main.js"></script>
 
-<!-- JavaScript files -->
-<script src="js/api.js"></script>
-<script src="js/audio.js"></script>
-<script src="js/main.js"></script>
-
-
-<!-- Debug Panel -->
-<div id="debugPanel" style="display: none; position: fixed; bottom: 0; right: 0; width: 400px; height: 300px; background: rgba(0,0,0,0.9); color: white; padding: 10px; font-family: monospace; font-size: 12px; overflow-y: auto; z-index: 9999;">
+  <!-- Debug Panel -->
+  <div id="debugPanel" style="display: none; position: fixed; bottom: 0; right: 0; width: 400px; height: 300px; background: rgba(0,0,0,0.9); color: white; padding: 10px; font-family: monospace; font-size: 12px; overflow-y: auto; z-index: 9999;">
     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-        <strong>Debug Log</strong>
-        <div>
-            <button onclick="document.getElementById('debugLog').innerHTML = ''">Clear</button>
-            <button onclick="this.parentElement.parentElement.parentElement.style.display = 'none'">Toggle</button>
-        </div>
+      <strong>Debug Log</strong>
+      <div>
+        <button onclick="document.getElementById('debugLog').innerHTML = ''">Clear</button>
+        <button onclick="this.parentElement.parentElement.parentElement.style.display = 'none'">Toggle</button>
+      </div>
     </div>
     <div id="debugLog"></div>
-</div>
+  </div>
 
-<!-- Debug Scripts - Place this BEFORE your other script imports -->
-<script>
-    // Test function
+  <script>
     function testDebug() {
-        console.log("Test button clicked");
-        debugLog("Test message from button click");
+      console.log("Test button clicked");
+      debugLog("Test message from button click");
     }
 
-    // Debug functions
     function debugLog(message, type = 'info') {
-        console.log("debugLog called with:", message); // Basic console log to verify function is called
-
-        const debugLog = document.getElementById('debugLog');
-        if (!debugLog) {
-            console.error("Debug log element not found!");
-            return;
-        }
-
-        const entry = document.createElement('div');
-        entry.style.borderBottom = '1px solid #444';
-        entry.style.padding = '5px 0';
-        entry.style.color = type === 'error' ? '#ff6b6b' :
-            type === 'warning' ? '#ffd93d' : '#fff';
-
-        const time = new Date().toLocaleTimeString();
-        entry.innerHTML = `<span style="color: #888">[${time}]</span> ${message}`;
-
-        debugLog.appendChild(entry);
-        debugLog.scrollTop = debugLog.scrollHeight;
-
-        // Also log to console
-        console.log(`[Debug ${type}]:`, message);
+      const debugLog = document.getElementById('debugLog');
+      if (!debugLog) {
+        console.error("Debug log element not found!");
+        return;
+      }
+      const entry = document.createElement('div');
+      entry.style.borderBottom = '1px solid #444';
+      entry.style.padding = '5px 0';
+      entry.style.color = type === 'error' ? '#ff6b6b' :
+        type === 'warning' ? '#ffd93d' : '#fff';
+      const time = new Date().toLocaleTimeString();
+      entry.innerHTML = `<span style="color: #888">[${time}]</span> ${message}`;
+      debugLog.appendChild(entry);
+      debugLog.scrollTop = debugLog.scrollHeight;
+      console.log(`[Debug ${type}]:`, message);
     }
 
     function clearDebugLog() {
-        const debugLog = document.getElementById('debugLog');
-        if (debugLog) {
-            debugLog.innerHTML = '';
-        }
+      const debugLog = document.getElementById('debugLog');
+      if (debugLog) {
+        debugLog.innerHTML = '';
+      }
     }
 
     function toggleDebugPanel() {
-        const panel = document.getElementById('debugPanel');
-        if (panel) {
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        }
+      const panel = document.getElementById('debugPanel');
+      if (panel) {
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      }
     }
 
-    // Test debug panel on load
     window.addEventListener('DOMContentLoaded', (event) => {
-        console.log("Page loaded, testing debug panel...");
-        debugLog("Debug panel initialized");
+      console.log("Page loaded, testing debug panel...");
+      debugLog("Debug panel initialized");
     });
-</script>
+  </script>
 </body>
 </html>

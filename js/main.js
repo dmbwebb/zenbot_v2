@@ -1,5 +1,6 @@
+/* main.js */
 // Debug configuration
-const DEBUG = false;  // Set to false in production
+const DEBUG = false;
 
 function setupDebugPanel() {
     const debugPanel = document.getElementById('debugPanel');
@@ -11,23 +12,19 @@ function setupDebugPanel() {
 function debugLog(...args) {
     if (DEBUG) {
         console.log('[ZenBot Debug]:', ...args);
-        // Only append to debug log if panel exists and is visible
         const debugLog = document.getElementById('debugLog');
         if (debugLog && debugLog.parentElement.style.display !== 'none') {
             const logEntry = document.createElement('div');
             logEntry.textContent = `[${new Date().toISOString()}] ${args.join(' ')}`;
             debugLog.appendChild(logEntry);
-            // Auto-scroll to bottom
             debugLog.scrollTop = debugLog.scrollHeight;
         }
     }
 }
 
-// Add error tracking
 window.addEventListener('error', (event) => {
     if (DEBUG) {
         console.error('[ZenBot Error]:', event.error);
-        // Show error in UI
         const errorMessage = document.getElementById('errorMessage');
         if (errorMessage) {
             errorMessage.textContent = `Error: ${event.error.message}`;
@@ -36,8 +33,6 @@ window.addEventListener('error', (event) => {
     }
 });
 
-
-// Add debug information to each major step
 async function testAudioContext() {
     try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -49,7 +44,6 @@ async function testAudioContext() {
     }
 }
 
-// Test file accessibility
 async function testAssetLoading() {
     try {
         const response = await fetch('/assets/meditation-bell.mp3');
@@ -62,7 +56,6 @@ async function testAssetLoading() {
     }
 }
 
-// Run tests on page load
 window.addEventListener('DOMContentLoaded', async () => {
     debugLog('Running diagnostic tests...');
 
@@ -97,8 +90,6 @@ class MeditationApp {
 
     setupEventListeners() {
         this.meditationForm.addEventListener('submit', (e) => this.handleMeditationSubmit(e));
-
-        // Handle visibility change to manage audio context
         document.addEventListener('visibilitychange', () => {
             if (document.hidden && audioManager.isPlaying) {
                 audioManager.pausePlayback();
@@ -111,16 +102,24 @@ class MeditationApp {
 
         const prompt = document.getElementById('prompt').value;
         const duration = parseInt(document.getElementById('duration').value);
-        const guidance = document.getElementById('guidance').value;  // <- ADD THIS
+        const guidance = document.getElementById('guidance').value;
+        const voiceSelection = document.getElementById('voiceSelect').value;
 
         if (!prompt || !duration) {
             apiManager.showError('Please fill in all fields');
             return;
         }
 
+        // Set selected voice in APIManager, handling random selection
+        if (voiceSelection === 'random') {
+            const voices = ["alloy", "ash", "coral", "echo", "onyx", "nova", "sage", "shimmer"];
+            apiManager.selectedVoice = voices[Math.floor(Math.random() * voices.length)];
+        } else {
+            apiManager.selectedVoice = voiceSelection;
+        }
+
         try {
             await audioManager.ensureAudioContext();
-            // Pass `guidance` to the generateMeditation call
             await this.generateMeditation(prompt, duration, guidance);
         } catch (error) {
             apiManager.showError(`Failed to generate meditation: ${error.message}`);
@@ -133,20 +132,12 @@ class MeditationApp {
         this.updateProgress(0);
 
         try {
-            // Generate the meditation script
             this.currentScript = await apiManager.generateMeditationScript(prompt, duration, guidance);
-
-            // ADD THIS LINE TO LOG THE ENTIRE SCRIPT
             console.log('Generated meditation script:', this.currentScript);
-
             this.updateProgress(20);
-
-            // Process the script into audio
             this.showProgress('Converting speech to audio...');
             await audioManager.initialize();
             await audioManager.processScript(this.currentScript);
-
-            // Show success state
             this.hideProgress();
             this.enablePlayback();
         } catch (error) {
@@ -165,7 +156,6 @@ class MeditationApp {
 
     hideProgress() {
         this.progressContainer.style.display = 'none';
-        // Re-enable the form
         this.meditationForm.querySelector('button[type="submit"]').disabled = false;
     }
 
@@ -178,44 +168,35 @@ class MeditationApp {
         audioPlayer.style.display = 'block';
     }
 
-    // Handle any cleanup needed
     dispose() {
         audioManager.dispose();
     }
 }
 
-// Create a global instance of the meditation app
 const meditationApp = new MeditationApp();
 
-// Handle page unload
 window.addEventListener('beforeunload', () => {
     meditationApp.dispose();
 });
 
-// Add error handling for browser compatibility
 window.addEventListener('DOMContentLoaded', () => {
-    // Check for required browser features
     const requiredFeatures = [
         { feature: window.AudioContext || window.webkitAudioContext, name: 'Web Audio API' },
         { feature: window.fetch, name: 'Fetch API' },
         { feature: window.Blob, name: 'Blob API' }
     ];
 
-    const missingFeatures = requiredFeatures
-        .filter(({feature}) => !feature)
-        .map(({name}) => name);
+    const missingFeatures = requiredFeatures.filter(({feature}) => !feature).map(({name}) => name);
 
     if (missingFeatures.length > 0) {
         apiManager.showError(
             `Your browser doesn't support the following required features: ${missingFeatures.join(', ')}. 
             Please use a modern browser like Chrome, Firefox, or Safari.`
         );
-        document.querySelectorAll('form button[type="submit"]')
-            .forEach(button => button.disabled = true);
+        document.querySelectorAll('form button[type="submit"]').forEach(button => button.disabled = true);
     }
 });
 
-// Handle service worker for offline functionality
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').then(registration => {
@@ -226,11 +207,10 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// Add keyboard shortcuts
 document.addEventListener('keydown', (e) => {
     if (audioManager.isPlaying || audioManager.pauseTime > 0) {
         switch(e.key.toLowerCase()) {
-            case ' ':  // Spacebar
+            case ' ':
                 e.preventDefault();
                 audioManager.togglePlayPause();
                 break;
@@ -241,7 +221,6 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Initialize debug panel on page load
 window.addEventListener('DOMContentLoaded', async () => {
     setupDebugPanel();
 

@@ -1,6 +1,8 @@
+/* api.js */
 class APIManager {
     constructor() {
         this.apiKey = null;
+        this.selectedVoice = 'onyx';  // Default voice
         this.initializeFromSession();
         this.setupEventListeners();
     }
@@ -58,7 +60,7 @@ class APIManager {
                     'Authorization': `Bearer ${this.apiKey}`
                 },
                 body: JSON.stringify({
-                    model: "gpt-4-turbo",
+                    model: "gpt-4o-mini",
                     messages: [{
                         role: "user",
                         content: "Hello"
@@ -76,7 +78,6 @@ class APIManager {
 
     async generateMeditationScript(prompt, duration, guidance) {
         try {
-            // Decide which sentence to use based on the guidance option
             let guidanceSentence = '';
             if (guidance === 'less') {
                 guidanceSentence = `
@@ -86,7 +87,6 @@ class APIManager {
                 with only pauses between. ONLY 4 instructions per meditation.
             `;
             } else {
-                // guidance === 'more'
                 guidanceSentence = `
                 Include a moderate amount of guidance with some pauses. 
                 There should be about 6-7 instructions for each meditation, 
@@ -94,7 +94,6 @@ class APIManager {
             `;
             }
 
-            // Build the content for the prompt, inserting the guidance sentence
             const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
                 headers: {
@@ -102,8 +101,7 @@ class APIManager {
                     'Authorization': `Bearer ${this.apiKey}`
                 },
                 body: JSON.stringify({
-                    model: "gpt-4-turbo",
-                    // Only return one script at a time:
+                    model: "gpt-4o-mini",
                     n: 1,
                     messages: [
                         {
@@ -119,7 +117,6 @@ class APIManager {
                             ${guidanceSentence}
                             
                             The style of meditation should be inspired by the teachings of Thich Nhat Hanh and Joseph Goldstein, but do not mention this. Can also take inspiration from Vipassana techniques.
-
 
                             The aim is NOT 'relaxation' or 'stress-reduction', 
                             but to cultivate mindfulness and awareness—to be present 
@@ -154,7 +151,6 @@ class APIManager {
             }
 
             const data = await response.json();
-            // Return only the first script:
             return data.choices[0].message.content;
         } catch (error) {
             console.error('Error generating meditation script:', error);
@@ -172,7 +168,7 @@ class APIManager {
                 },
                 body: JSON.stringify({
                     model: "tts-1",
-                    voice: "alloy",
+                    voice: this.selectedVoice,
                     input: text.trim()
                 })
             });

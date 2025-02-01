@@ -1,27 +1,37 @@
+/* styles.css */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap');
+
+
+
 body {
-    font-family: 'Roboto', sans-serif;
-    line-height: 1.6;
-    color: #333;
-    max-width: 800px;
-    margin: 0 auto;
+    font-family: 'Lato', sans-serif;
+    margin: 0;
     padding: 20px;
-    background-color: #f0f4f8;
+    /* Neutral light gradient background */
+    background: linear-gradient(135deg, #f5f5f5, #ffffff);
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
 }
 
-
-
 .container {
-    background-color: white;
+    background-color: #ffffff;
     padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
+    width: 100%;
+    max-width: 800px;
 }
 
 h1 {
-    color: #2c3e50;
+    /*font-family: 'Prata', serif;*/
+    font-family: 'DM Serif Display', 'Prata', 'Lato', sans-serif;
+    color: #333;
     text-align: center;
-    font-size: 2.5em;
+    font-size: 2.8em;
     margin-bottom: 30px;
 }
 
@@ -32,18 +42,20 @@ h1 {
 label {
     display: block;
     margin-bottom: 0.5rem;
-    color: #2c3e50;
+    color: #333;
     font-weight: 500;
 }
 
 input[type="text"],
 input[type="password"],
-input[type="number"] {
+input[type="number"],
+select {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1rem;
+    box-sizing: border-box;
 }
 
 .checkbox-group {
@@ -51,68 +63,44 @@ input[type="number"] {
 }
 
 button {
-    background-color: #3498db;
+    background-color: #6c757d;
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 4px;
     cursor: pointer;
     font-size: 1rem;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 button:hover {
-    background-color: #2980b9;
+    background-color: #5a6268;
+    transform: scale(1.02);
 }
 
 button:disabled {
-    background-color: #bdc3c7;
+    background-color: #c8cbcf;
     cursor: not-allowed;
 }
 
 .progress-container {
     display: none;
     margin: 2rem 0;
-}
-
-.icon-button {
-    background: rgba(52, 152, 219, 0.1);  /* Faded blue background */
-    border: 2px solid rgba(52, 152, 219, 0.5);  /* Faded blue border */
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    padding: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    color: #3498db;  /* Blue color for the icon */
-}
-
-.icon-button:hover {
-    background: #3498db;
-    border-color: #3498db;
-    color: white;
-}
-
-.icon-button svg {
-    width: 24px;
-    height: 24px;
-    stroke: currentColor;  /* This makes the icon take the color property value */
+    text-align: center;
 }
 
 .progress-bar {
     width: 100%;
     height: 20px;
-    background-color: #ecf0f1;
+    background-color: #E0E0E0;
     border-radius: 10px;
     overflow: hidden;
+    margin-bottom: 10px;
 }
 
 .progress-fill {
     height: 100%;
-    background-color: #3498db;
+    background-color: #6c757d;
     width: 0%;
     transition: width 0.3s ease;
 }
@@ -120,12 +108,13 @@ button:disabled {
 .progress-text {
     text-align: center;
     margin-top: 0.5rem;
-    color: #7f8c8d;
+    color: #555;
 }
 
 .audio-player {
     display: none;
     margin: 2rem 0;
+    text-align: center;
 }
 
 .audio-controls {
@@ -136,10 +125,37 @@ button:disabled {
 }
 
 .error-message {
-    background-color: #ffebee;
+    background-color: #ffcdd2;
     color: #c62828;
     padding: 1rem;
     border-radius: 4px;
     margin: 1rem 0;
     display: none;
+}
+
+.icon-button {
+    background: rgba(108, 117, 125, 0.2);
+    border: 2px solid rgba(108, 117, 125, 0.5);
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    padding: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: #6c757d;
+}
+
+.icon-button:hover {
+    background: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.icon-button svg {
+    width: 28px;
+    height: 28px;
+    stroke: currentColor;
 }
