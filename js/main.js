@@ -67,6 +67,12 @@ async function testAssetLoading() {
         const response = await fetch(BELL_SOUND_PATH);
         if (!response.ok) throw new Error('Meditation bell not found');
         debugLog('Meditation bell accessible');
+        
+        // Test pause format parsing
+        const testPause = "[PAUSE 02:30]";
+        const match = testPause.match(/\[PAUSE (\d{2}):(\d{2})\]/);
+        if (!match) throw new Error('Pause format parsing failed');
+        
         return true;
     } catch (error) {
         debugLog('Asset loading failed:', error);
@@ -76,7 +82,7 @@ async function testAssetLoading() {
 
 window.addEventListener('DOMContentLoaded', async () => {
     setupDebugPanel();
-    debugLog('ZenBot Version: 2.0.4');
+    debugLog('ZenBot Version: 2.0.5');
 
     if (DEBUG) {
         debugLog('Running diagnostic tests...');

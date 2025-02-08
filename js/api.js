@@ -101,7 +101,9 @@ class APIManager {
                     ${prompt}
                     </topic>
                     
-                    Include [PAUSE X] indicators for moments of silence, where X is the duration of the pause in minutes.
+                    Include pauses in the format [PAUSE MM:SS] where MM is minutes and SS is seconds.
+                    For example: [PAUSE 02:30] for a 2 minute and 30 second pause.
+                    Always use two digits for both minutes and seconds.
                     The pauses should add up to the total duration. The sum of the pauses should not be greater than ${duration} minutes.
                     ${guidanceSentence}
                     Do not end the meditation with a pause: end with text.
@@ -162,8 +164,15 @@ class APIManager {
             const data = await response.json();
             let script = data.choices[0].message.content;
             
+            // Standardize pause format
+            script = script.replace(/\[PAUSE\s*(\d+(?:\.\d+)?)\]/gi, (match, time) => {
+                const minutes = Math.floor(parseFloat(time));
+                const seconds = Math.round((parseFloat(time) - minutes) * 60);
+                return `[PAUSE ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}]`;
+            });
+            
             // Remove trailing pause if it's the last thing in the script
-            script = script.replace(/\[PAUSE [0-9.]+\]\s*$/i, '').trim();
+            script = script.replace(/\[PAUSE [0-9:]+\]\s*$/i, '').trim();
             
             return script;
         } catch (error) {
