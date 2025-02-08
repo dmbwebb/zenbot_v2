@@ -49,7 +49,7 @@ async function testAudioContext() {
 
 async function testAssetLoading() {
     try {
-        const response = await fetch('/assets/meditation-bell.mp3');
+        const response = await fetch(BELL_SOUND_PATH);
         if (!response.ok) throw new Error('Meditation bell not found');
         debugLog('Meditation bell accessible');
         return true;
