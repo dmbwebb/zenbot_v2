@@ -67,7 +67,7 @@ class AudioManager {
 
     async processScript(script) {
         console.log('Starting script processing...');
-        const parts = script.split(/\[PAUSE (\d+(?:\.\d+)?)\]/);
+        const parts = script.split(/\[PAUSE (\d{2}:\d{2})\]/);
 
         // Calculate total number of text sub-segments for progress
         let totalTextSegments = 0;
@@ -122,8 +122,9 @@ class AudioManager {
                     }
                 }
             } else {
-                // Pause part defined by [PAUSE X]
-                const pauseDuration = parseFloat(parts[i]) * 60;
+                // Convert MM:SS format to seconds
+                const [minutes, seconds] = parts[i].split(':').map(Number);
+                const pauseDuration = (minutes * 60) + seconds;
                 const silenceBuffer = await this.createSilence(pauseDuration);
                 audioBuffers.push(silenceBuffer);
                 timingMarks.push({ time: currentTime, type: 'pause', duration: pauseDuration });
@@ -298,8 +299,6 @@ class AudioManager {
             this.progressInterval = null;
         }
     }
-
-
 
     updateProgress(percentage, message) {
         if (this.onProgress) {

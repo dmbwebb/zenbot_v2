@@ -82,7 +82,7 @@ async function testAssetLoading() {
 
 window.addEventListener('DOMContentLoaded', async () => {
     setupDebugPanel();
-    debugLog('ZenBot Version: 2.0.5');
+    debugLog('ZenBot Version: 2.0.6');
 
     if (DEBUG) {
         debugLog('Running diagnostic tests...');

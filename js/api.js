@@ -75,11 +75,8 @@ class APIManager {
         try {
             let guidanceSentence = '';
             if (guidance.toLowerCase() === 'less') {
-                guidanceSentence = `
-                There should be plenty of long pauses between guidance. 
-                Do not guide too much, use instructions sparingly. 
-                Have about 4 instructions OR LESS, 
-                with only pauses between. ONLY 4 instructions for the whole meditation.
+                guidanceSentence = 
+                `There should be long pauses between guidance. Do not guide too much, use instructions sparingly. Have about 4 instructions OR LESS in total, with pauses between. ONLY 4 instructions for the whole meditation. This is important.
             `;
             } else {
                 guidanceSentence = `
@@ -95,45 +92,35 @@ class APIManager {
                 },
                 {
                     role: "user",
-                    content: `
-                    Create a ${duration}-minute guided meditation on this topic:
-                    <topic>
-                    ${prompt}
-                    </topic>
-                    
-                    Include pauses in the format [PAUSE MM:SS] where MM is minutes and SS is seconds.
-                    For example: [PAUSE 02:30] for a 2 minute and 30 second pause.
-                    Always use two digits for both minutes and seconds.
-                    The pauses should add up to the total duration. The sum of the pauses should not be greater than ${duration} minutes.
-                    ${guidanceSentence}
-                    Do not end the meditation with a pause: end with text.
-                    
-                    The style of meditation should be inspired by the teachings of Thich Nhat Hanh and Joseph Goldstein, but do not mention this. Can also take inspiration from Vipassana techniques.
+                    content: `Create a ${duration}-minute guided meditation on this topic:
+<topic>
+${prompt}
+</topic>
 
-                    The aim is NOT 'relaxation' or 'stress-reduction', 
-                    but to cultivate mindfulness and awareness—to be present 
-                    with whatever arises in the moment, in all its detail and subtlety.
-                    Be very precise in your guidance, with a focus on noticing exactly what is happening in the present moment.
-                    
-                    The meditation should be aimed at intermediate to advanced practitioners.
+Include pauses in the format [PAUSE MM:SS] where MM is minutes and SS is seconds.
+For example: [PAUSE 02:30] for a 2 minute and 30 second pause.
+Always use two digits for both minutes and seconds.
+The pauses should add up to the total duration. The sum of the pauses should not be greater than ${duration} minutes.
+${guidanceSentence}
+Do not end the meditation with a pause: end with text.
 
-                    Use 'mental noting'—ask the listener to note the sensations, 
-                    thoughts, and emotions that arise.
+The style of meditation should be inspired by the teachings of Thich Nhat Hanh and Joseph Goldstein, but do not mention this. Can also take inspiration from Vipassana techniques.
 
-                    Do not add numbers or titles, so that the guided meditation 
-                    flows nicely when said out loud.
+The aim is NOT 'relaxation' or 'stress-reduction', but to cultivate mindfulness and awareness—to be present with whatever arises in the moment, in all its detail and subtlety.
+Be very precise in your guidance, with a focus on noticing exactly what is happening in the present moment.
 
-                    Make sure to actually start the meditation 
-                    before pausing too soon. Give instructions straight away 
-                    for the meditation rather than just welcoming.
+The meditation should be aimed at intermediate to advanced practitioners.
 
-                    Be precise and concise in your guidance.
+Use 'mental noting'—ask the listener to note the sensations, thoughts, and emotions that arise.
 
-                    Be a little bit surprising in your guidance, 
-                    with some novel ideas or ways of phrasing things.
-                    Keep it fresh and interesting. Have some surprising and 
-                    precise insights about how to meditate.
-                `
+Do not add numbers or titles, so that the guided meditation flows nicely when said out loud.
+
+Make sure to actually start the meditation before pausing too soon. Give instructions straight away for the meditation rather than just welcoming.
+
+Be precise and concise in your guidance.
+
+Be a little bit surprising in your guidance, with some novel ideas or ways of phrasing things.
+Keep it fresh and interesting. Have some surprising and precise insights about how to meditate.`
                 }
             ];
 
