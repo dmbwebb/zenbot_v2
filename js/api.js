@@ -78,14 +78,13 @@ class APIManager {
                 guidanceSentence = `
                 There should be plenty of long pauses between guidance. 
                 Do not guide too much, use instructions sparingly. 
-                Have about 4 instructions for each meditation OR LESS, 
-                with only pauses between. ONLY 4 instructions per meditation.
+                Have about 4 instructions OR LESS, 
+                with only pauses between. ONLY 4 instructions for the whole meditation.
             `;
             } else {
                 guidanceSentence = `
                 Include a moderate amount of guidance with some pauses. 
-                There should be about 6-7 instructions for each meditation, 
-                with some pauses in between.
+                There should be about 6-7 instructions, with some pauses in between.
             `;
             }
 
