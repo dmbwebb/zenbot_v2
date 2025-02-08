@@ -231,15 +231,21 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-
-
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then(registration => {
-            console.log('ServiceWorker registration successful');
-        }).catch(err => {
-            console.log('ServiceWorker registration failed: ', err);
-        });
+        // Get the base path for the application
+        const basePath = window.location.pathname.includes('/dmbwebb.github.io') ? '/dmbwebb.github.io' : '';
+        const swPath = `${basePath}/sw.js`;
+        
+        // Ensure the path starts with a forward slash
+        const normalizedPath = swPath.startsWith('/') ? swPath : `/${swPath}`;
+        
+        navigator.serviceWorker.register(normalizedPath, { scope: basePath || '/' })
+            .then(registration => {
+                console.log('ServiceWorker registration successful');
+            }).catch(err => {
+                console.log('ServiceWorker registration failed: ', err);
+            });
     });
 }
 
