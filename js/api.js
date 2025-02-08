@@ -76,12 +76,12 @@ class APIManager {
             let guidanceSentence = '';
             if (guidance.toLowerCase() === 'less') {
                 guidanceSentence = 
-                `There should be long pauses between guidance. Do not guide too much, use instructions sparingly. Have about 4 instructions OR LESS in total, with pauses between. ONLY 4 instructions for the whole meditation. This is important.
+                `There should be long pauses between guidance. Do not guide too much, use instructions sparingly. Include only 4 instructions, with pauses between each 4. ONLY 4 instructions for the whole meditation. This is important.
             `;
             } else {
                 guidanceSentence = `
                 Include a moderate amount of guidance with some pauses. 
-                There should be about 6-7 instructions, with some pauses in between.
+                There should be about 7 instructions for the whole meditation, with a pause in between each of the 7 instructions.
             `;
             }
 
@@ -101,7 +101,6 @@ Include pauses in the format [PAUSE MM:SS] where MM is minutes and SS is seconds
 For example: [PAUSE 02:30] for a 2 minute and 30 second pause.
 Always use two digits for both minutes and seconds.
 The pauses should add up to the total duration. The sum of the pauses should not be greater than ${duration} minutes.
-${guidanceSentence}
 Do not end the meditation with a pause: end with text.
 
 The style of meditation should be inspired by the teachings of Thich Nhat Hanh and Joseph Goldstein, but do not mention this. Can also take inspiration from Vipassana techniques.
@@ -120,7 +119,10 @@ Make sure to actually start the meditation before pausing too soon. Give instruc
 Be precise and concise in your guidance.
 
 Be a little bit surprising in your guidance, with some novel ideas or ways of phrasing things.
-Keep it fresh and interesting. Have some surprising and precise insights about how to meditate.`
+Keep it fresh and interesting. Have some surprising and precise insights about how to meditate.
+
+${guidanceSentence}
+`
                 }
             ];
 
@@ -138,7 +140,7 @@ Keep it fresh and interesting. Have some surprising and precise insights about h
                     'Authorization': `Bearer ${this.apiKey}`
                 },
                 body: JSON.stringify({
-                    model: "gpt-4o-mini",
+                    model: "gpt-4o",
                     n: 1,
                     messages: messages
                 })
