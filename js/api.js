@@ -7,6 +7,7 @@ class APIManager {
         this.setupEventListeners();
     }
 
+
     initializeFromSession() {
         // Check if API key exists in session storage
         const savedKey = sessionStorage.getItem('openai_api_key');

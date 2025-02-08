@@ -299,6 +299,8 @@ class AudioManager {
         }
     }
 
+
+
     updateProgress(percentage, message) {
         if (this.onProgress) {
             this.onProgress(percentage, message);
