@@ -1,14 +1,13 @@
 const CACHE_NAME = 'zenbot-cache-v1';
-const BASE_PATH = self.location.pathname.includes('/dmbwebb.github.io') ? '/dmbwebb.github.io' : '';
 
 const ASSETS_TO_CACHE = [
-    `${BASE_PATH}/`,
-    `${BASE_PATH}/index.html`,
-    `${BASE_PATH}/css/styles.css`,
-    `${BASE_PATH}/js/api.js`,
-    `${BASE_PATH}/js/audio.js`,
-    `${BASE_PATH}/js/main.js`,
-    `${BASE_PATH}/assets/meditation-bell.mp3`,
+    './',
+    './index.html',
+    './css/styles.css',
+    './js/api.js',
+    './js/audio.js',
+    './js/main.js',
+    './assets/meditation-bell.mp3',
     'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap'
 ];
 

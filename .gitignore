@@ -5,3 +5,4 @@
 /.idea/vcs.xml
 /.idea/zenbot_v2.iml
 /test.sh
+/.vscode/launch.json

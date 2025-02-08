@@ -61,7 +61,7 @@ async function testAssetLoading() {
 
 window.addEventListener('DOMContentLoaded', async () => {
     setupDebugPanel();
-    debugLog('ZenBot Version: 2.0.1');
+    debugLog('ZenBot Version: 2.0.2');
 
     if (DEBUG) {
         debugLog('Running diagnostic tests...');
@@ -239,19 +239,18 @@ window.addEventListener('DOMContentLoaded', () => {
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        // Get the base path for the application
-        const basePath = window.location.pathname.includes('/dmbwebb.github.io') ? '/dmbwebb.github.io' : '';
-        const swPath = `${basePath}/sw.js`;
+        // Get the full URL path
+        const fullPath = window.location.href;
+        // Extract the base directory path
+        const basePath = new URL('.', fullPath).pathname;
         
-        // Ensure the path starts with a forward slash
-        const normalizedPath = swPath.startsWith('/') ? swPath : `/${swPath}`;
-        
-        navigator.serviceWorker.register(normalizedPath, { scope: basePath || '/' })
-            .then(registration => {
-                console.log('ServiceWorker registration successful');
-            }).catch(err => {
-                console.log('ServiceWorker registration failed: ', err);
-            });
+        navigator.serviceWorker.register('./sw.js', {
+            scope: basePath
+        }).then(registration => {
+            console.log('ServiceWorker registration successful with scope:', registration.scope);
+        }).catch(err => {
+            console.log('ServiceWorker registration failed:', err);
+        });
     });
 }
 
