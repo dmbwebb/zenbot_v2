@@ -89,6 +89,14 @@ class MeditationApp {
                 this.progressText.textContent = message;
             }
         };
+
+        // Add new properties
+        this.scriptDisplay = document.getElementById('scriptDisplay');
+        this.meditationScript = document.getElementById('meditationScript');
+        this.toggleScriptBtn = document.getElementById('toggleScriptBtn');
+        
+        // Add script toggle to event listeners
+        this.setupScriptDebugger();
     }
 
     setupEventListeners() {
@@ -97,6 +105,14 @@ class MeditationApp {
             if (document.hidden && audioManager.isPlaying) {
                 audioManager.pausePlayback();
             }
+        });
+    }
+
+    setupScriptDebugger() {
+        this.toggleScriptBtn.addEventListener('click', () => {
+            const isHidden = this.scriptDisplay.style.display === 'none';
+            this.scriptDisplay.style.display = isHidden ? 'block' : 'none';
+            this.toggleScriptBtn.textContent = isHidden ? 'Hide Script' : 'Show Script';
         });
     }
 
@@ -143,6 +159,11 @@ class MeditationApp {
             // Generate the meditation script
             this.currentScript = await apiManager.generateMeditationScript(prompt, duration, guidance);
             console.log('Generated meditation script:', this.currentScript);
+            
+            // Display the script
+            this.meditationScript.textContent = this.currentScript;
+            this.toggleScriptBtn.style.display = 'block';
+            
             this.updateProgress(20);
 
             this.showProgress('Converting speech to audio...');

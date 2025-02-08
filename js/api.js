@@ -73,7 +73,7 @@ class APIManager {
     async generateMeditationScript(prompt, duration, guidance) {
         try {
             let guidanceSentence = '';
-            if (guidance === 'less') {
+            if (guidance.toLowerCase() === 'less') {
                 guidanceSentence = `
                 There should be plenty of long pauses between guidance. 
                 Do not guide too much, use instructions sparingly. 
@@ -105,10 +105,15 @@ class APIManager {
                         {
                             role: "user",
                             content: `
-                            Create a ${duration}-minute guided meditation on ${prompt}.
+                            Create a ${duration}-minute guided meditation on this topic:
+                            <topic>
+                            ${prompt}
+                            </topic>
+                            
                             Include [PAUSE X] indicators for moments of silence, where X is the duration of the pause in minutes.
-                            The pauses should add up to the total duration.
+                            The pauses should add up to the total duration. The sum of the pauses should not be greater than ${duration} minutes.
                             ${guidanceSentence}
+                            Do not end the meditation with a pause: end with text.
                             
                             The style of meditation should be inspired by the teachings of Thich Nhat Hanh and Joseph Goldstein, but do not mention this. Can also take inspiration from Vipassana techniques.
 
@@ -146,7 +151,12 @@ class APIManager {
             }
 
             const data = await response.json();
-            return data.choices[0].message.content;
+            let script = data.choices[0].message.content;
+            
+            // Remove trailing pause if it's the last thing in the script
+            script = script.replace(/\[PAUSE [0-9.]+\]\s*$/i, '').trim();
+            
+            return script;
         } catch (error) {
             console.error('Error generating meditation script:', error);
             throw error;

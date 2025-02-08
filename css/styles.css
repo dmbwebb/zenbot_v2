@@ -159,3 +159,38 @@ button:disabled {
     height: 28px;
     stroke: currentColor;
 }
+
+.script-debug-container {
+    margin: 20px 0;
+}
+
+.debug-toggle-btn {
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Lato', sans-serif;
+    display: none; /* Hidden by default, shown after script generation */
+}
+
+.debug-toggle-btn:hover {
+    background: #e0e0e0;
+}
+
+.script-display {
+    margin-top: 10px;
+    padding: 15px;
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.script-display pre {
+    margin: 0;
+    white-space: pre-wrap;
+    font-family: 'Lato', sans-serif;
+    line-height: 1.5;
+}
