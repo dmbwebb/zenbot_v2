@@ -88,6 +88,60 @@ class APIManager {
             `;
             }
 
+            const messages = [
+                {
+                    role: "system",
+                    content: "You are a meditation guide. Create a guided meditation script."
+                },
+                {
+                    role: "user",
+                    content: `
+                    Create a ${duration}-minute guided meditation on this topic:
+                    <topic>
+                    ${prompt}
+                    </topic>
+                    
+                    Include [PAUSE X] indicators for moments of silence, where X is the duration of the pause in minutes.
+                    The pauses should add up to the total duration. The sum of the pauses should not be greater than ${duration} minutes.
+                    ${guidanceSentence}
+                    Do not end the meditation with a pause: end with text.
+                    
+                    The style of meditation should be inspired by the teachings of Thich Nhat Hanh and Joseph Goldstein, but do not mention this. Can also take inspiration from Vipassana techniques.
+
+                    The aim is NOT 'relaxation' or 'stress-reduction', 
+                    but to cultivate mindfulness and awareness—to be present 
+                    with whatever arises in the moment, in all its detail and subtlety.
+                    Be very precise in your guidance, with a focus on noticing exactly what is happening in the present moment.
+                    
+                    The meditation should be aimed at intermediate to advanced practitioners.
+
+                    Use 'mental noting'—ask the listener to note the sensations, 
+                    thoughts, and emotions that arise.
+
+                    Do not add numbers or titles, so that the guided meditation 
+                    flows nicely when said out loud.
+
+                    Make sure to actually start the meditation 
+                    before pausing too soon. Give instructions straight away 
+                    for the meditation rather than just welcoming.
+
+                    Be precise and concise in your guidance.
+
+                    Be a little bit surprising in your guidance, 
+                    with some novel ideas or ways of phrasing things.
+                    Keep it fresh and interesting. Have some surprising and 
+                    precise insights about how to meditate.
+                `
+                }
+            ];
+
+            console.log('Debug - Meditation Generation Request:', {
+                prompt,
+                duration,
+                guidance,
+                fullMessages: messages
+            });
+
             const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
                 headers: {
@@ -97,52 +151,7 @@ class APIManager {
                 body: JSON.stringify({
                     model: "gpt-4o-mini",
                     n: 1,
-                    messages: [
-                        {
-                            role: "system",
-                            content: "You are a meditation guide. Create a guided meditation script."
-                        },
-                        {
-                            role: "user",
-                            content: `
-                            Create a ${duration}-minute guided meditation on this topic:
-                            <topic>
-                            ${prompt}
-                            </topic>
-                            
-                            Include [PAUSE X] indicators for moments of silence, where X is the duration of the pause in minutes.
-                            The pauses should add up to the total duration. The sum of the pauses should not be greater than ${duration} minutes.
-                            ${guidanceSentence}
-                            Do not end the meditation with a pause: end with text.
-                            
-                            The style of meditation should be inspired by the teachings of Thich Nhat Hanh and Joseph Goldstein, but do not mention this. Can also take inspiration from Vipassana techniques.
-
-                            The aim is NOT 'relaxation' or 'stress-reduction', 
-                            but to cultivate mindfulness and awareness—to be present 
-                            with whatever arises in the moment, in all its detail and subtlety.
-                            Be very precise in your guidance, with a focus on noticing exactly what is happening in the present moment.
-                            
-                            The meditation should be aimed at intermediate to advanced practitioners.
-
-                            Use 'mental noting'—ask the listener to note the sensations, 
-                            thoughts, and emotions that arise.
-
-                            Do not add numbers or titles, so that the guided meditation 
-                            flows nicely when said out loud.
-
-                            Make sure to actually start the meditation 
-                            before pausing too soon. Give instructions straight away 
-                            for the meditation rather than just welcoming.
-
-                            Be precise and concise in your guidance.
-
-                            Be a little bit surprising in your guidance, 
-                            with some novel ideas or ways of phrasing things.
-                            Keep it fresh and interesting. Have some surprising and 
-                            precise insights about how to meditate.
-                        `
-                        }
-                    ]
+                    messages: messages
                 })
             });
 

@@ -25,6 +25,19 @@ function debugLog(...args) {
     }
 }
 
+// Add this near the top of your JS code (executed on page load)
+document.addEventListener('touchstart', function unlockAudio() {
+  // If the AudioContext exists and is suspended, resume it.
+  if (audioManager && audioManager.audioContext && audioManager.audioContext.state === 'suspended') {
+    audioManager.audioContext.resume().then(() => {
+      console.log('AudioContext unlocked via touchstart');
+    });
+  }
+  // Remove this event listener after unlocking
+  document.removeEventListener('touchstart', unlockAudio);
+});
+
+
 window.addEventListener('error', (event) => {
     if (DEBUG) {
         console.error('[ZenBot Error]:', event.error);
@@ -47,6 +60,8 @@ async function testAudioContext() {
     }
 }
 
+
+
 async function testAssetLoading() {
     try {
         const response = await fetch(BELL_SOUND_PATH);
@@ -61,7 +76,7 @@ async function testAssetLoading() {
 
 window.addEventListener('DOMContentLoaded', async () => {
     setupDebugPanel();
-    debugLog('ZenBot Version: 2.0.3');
+    debugLog('ZenBot Version: 2.0.4');
 
     if (DEBUG) {
         debugLog('Running diagnostic tests...');
