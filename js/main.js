@@ -97,6 +97,7 @@ class MeditationApp {
         
         // Add script toggle to event listeners
         this.setupScriptDebugger();
+
     }
 
     setupEventListeners() {
