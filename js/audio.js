@@ -48,7 +48,7 @@ class AudioManager {
 
     async loadBellSound() {
         try {
-            const response = await fetch('assets/meditation-bell.mp3');
+            const response = await fetch(BELL_SOUND_PATH);
             const arrayBuffer = await response.arrayBuffer();
             this.bellBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
             console.log('Bell sound loaded successfully');

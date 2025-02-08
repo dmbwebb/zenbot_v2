@@ -208,3 +208,5 @@ class APIManager {
 
 // Create a global instance of the API manager
 const apiManager = new APIManager();
+
+const BELL_SOUND_PATH = './assets/meditation-bell.mp3';
