@@ -60,16 +60,21 @@ async function testAssetLoading() {
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-    debugLog('Running diagnostic tests...');
+    debugLog('ZenBot Version: 2.0.0');
+    setupDebugPanel();
 
-    const tests = [
-        { name: 'Audio Context', fn: testAudioContext },
-        { name: 'Asset Loading', fn: testAssetLoading }
-    ];
+    if (DEBUG) {
+        debugLog('Running diagnostic tests...');
 
-    for (const test of tests) {
-        const result = await test.fn();
-        debugLog(`${test.name} test:`, result ? 'PASSED' : 'FAILED');
+        const tests = [
+            { name: 'Audio Context', fn: testAudioContext },
+            { name: 'Asset Loading', fn: testAssetLoading }
+        ];
+
+        for (const test of tests) {
+            const result = await test.fn();
+            debugLog(`${test.name} test:`, result ? 'PASSED' : 'FAILED');
+        }
     }
 });
 
@@ -260,24 +265,6 @@ document.addEventListener('keydown', (e) => {
             case 'escape':
                 audioManager.stopPlayback();
                 break;
-        }
-    }
-});
-
-window.addEventListener('DOMContentLoaded', async () => {
-    setupDebugPanel();
-
-    if (DEBUG) {
-        debugLog('Running diagnostic tests...');
-
-        const tests = [
-            { name: 'Audio Context', fn: testAudioContext },
-            { name: 'Asset Loading', fn: testAssetLoading }
-        ];
-
-        for (const test of tests) {
-            const result = await test.fn();
-            debugLog(`${test.name} test:`, result ? 'PASSED' : 'FAILED');
         }
     }
 });
