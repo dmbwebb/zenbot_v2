@@ -4,7 +4,7 @@
 window.noSleep = new NoSleep();
 
 const DEBUG = false;
-const VERSION = '2.0.6';
+const VERSION = '2.0.8';
 
 function setupDebugPanel() {
     const debugPanel = document.getElementById('debugPanel');
