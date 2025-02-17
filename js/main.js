@@ -4,7 +4,7 @@
 window.noSleep = new NoSleep();
 
 const DEBUG = false;
-const VERSION = '2.0.8';
+const VERSION = '2.0.9';
 
 function setupDebugPanel() {
     const debugPanel = document.getElementById('debugPanel');
@@ -88,7 +88,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Add version number display
     const versionDisplay = document.createElement('div');
     versionDisplay.textContent = `v${VERSION}`;
-    versionDisplay.style.cssText = 'color: #666; font-size: 0.8em; text-align: center; margin-top: -10px; margin-bottom: 20px;';
+    versionDisplay.style.cssText = 'color: #666; font-size: 0.8em; text-align: center; margin-top: -20px; margin-bottom: 10px;';
     const title = document.querySelector('h1');
     if (title) {
         title.parentNode.insertBefore(versionDisplay, title.nextSibling);
