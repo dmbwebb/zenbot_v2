@@ -4,6 +4,7 @@
 window.noSleep = new NoSleep();
 
 const DEBUG = false;
+const VERSION = '2.0.6';
 
 function setupDebugPanel() {
     const debugPanel = document.getElementById('debugPanel');
@@ -82,7 +83,16 @@ async function testAssetLoading() {
 
 window.addEventListener('DOMContentLoaded', async () => {
     setupDebugPanel();
-    debugLog('ZenBot Version: 2.0.6');
+    debugLog(`ZenBot Version: ${VERSION}`);
+
+    // Add version number display
+    const versionDisplay = document.createElement('div');
+    versionDisplay.textContent = `v${VERSION}`;
+    versionDisplay.style.cssText = 'color: #666; font-size: 0.8em; text-align: center; margin-top: -10px; margin-bottom: 20px;';
+    const title = document.querySelector('h1');
+    if (title) {
+        title.parentNode.insertBefore(versionDisplay, title.nextSibling);
+    }
 
     if (DEBUG) {
         debugLog('Running diagnostic tests...');

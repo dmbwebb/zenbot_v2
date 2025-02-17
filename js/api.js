@@ -73,17 +73,28 @@ class APIManager {
 
     async generateMeditationScript(prompt, duration, guidance) {
         try {
-            let guidanceSentence = '';
-            if (guidance.toLowerCase() === 'less') {
-                guidanceSentence = 
-                `There should be long pauses between guidance. Do not guide too much, use instructions sparingly. Include only 4 instructions, with pauses between each 4. ONLY 4 instructions for the whole meditation. This is important.
-            `;
-            } else {
-                guidanceSentence = `
-                Include a moderate amount of guidance with some pauses. 
-                There should be about 7 instructions for the whole meditation, with a pause in between each of the 7 instructions.
-            `;
+            let n_blocks, sentences_per_block;
+            switch (guidance.toLowerCase()) {
+                case 'less':
+                    n_blocks = 4;
+                    sentences_per_block = "1 or 2";
+                    break;
+                case 'medium':
+                    n_blocks = 5;
+                    sentences_per_block = "2 or 3";
+                    break;
+                case 'more':
+                    n_blocks = 7;
+                    sentences_per_block = "3 or 4";
+                    break;
             }
+
+            // Generate example structure based on number of blocks
+            let exampleStructure = 'Begin with a brief instruction...\n[PAUSE MM:SS]\n';
+            for (let i = 2; i < n_blocks; i++) {
+                exampleStructure += `Instruction ${i} with precise guidance...\n[PAUSE MM:SS]\n`;
+            }
+            exampleStructure += 'Final instruction with a novel insight...';
 
             const messages = [
                 {
@@ -92,46 +103,38 @@ class APIManager {
                 },
                 {
                     role: "user",
-                    content: `Create a ${duration}-minute guided meditation on this topic:
-<topic>
-${prompt}
-</topic>
+                    content: `You are tasked with creating a guided meditation script for intermediate to advanced practitioners. The meditation should focus on cultivating mindfulness and awareness, rather than just relaxation or stress reduction.
 
-Include pauses in the format [PAUSE MM:SS] where MM is minutes and SS is seconds.
-For example: [PAUSE 02:30] for a 2 minute and 30 second pause.
-Always use two digits for both minutes and seconds.
-The pauses should add up to the total duration. The sum of the pauses should not be greater than ${duration} minutes.
-Do not end the meditation with a pause: end with text.
+Here are the key details for this meditation:
 
-The style of meditation should be inspired by the teachings of Thich Nhat Hanh and Joseph Goldstein, but do not mention this. Can also take inspiration from Vipassana techniques.
+<duration>${duration} minutes</duration>
 
-The aim is NOT 'relaxation' or 'stress-reduction', but to cultivate mindfulness and awareness—to be present with whatever arises in the moment, in all its detail and subtlety.
-Be very precise in your guidance, with a focus on noticing exactly what is happening in the present moment.
+<topic>${prompt}</topic>
 
-The meditation should be aimed at intermediate to advanced practitioners.
+Before creating the meditation script, please plan your approach. Wrap your work inside <meditation_outline> tags:
+1. Outline the ${n_blocks} main instructions (${sentences_per_block} sentences each) you'll use in the meditation.
+2. Calculate and list out the exact pause durations between instructions, ensuring they sum to the total meditation time.
+3. Consider how to incorporate mental noting and present moment awareness into each instruction.
+4. Brainstorm at least three novel or surprising elements to potentially include in the guidance, then select the best one.
 
-Use 'mental noting'—ask the listener to note the sensations, thoughts, and emotions that arise.
+Now, create the guided meditation script, wrapped in <meditation_script> tags, following these guidelines:
+1. Start with immediate instructions for the meditation, without a welcome or introduction.
+2. Include exactly ${n_blocks} instruction blocks, each consisting of ${sentences_per_block} sentences.
+3. Insert pauses between instructions in the format [PAUSE MM:SS], where MM is minutes and SS is seconds. Always use two digits for both. For example: [PAUSE 02:30]
+4. Ensure the total pause time equals the specified meditation duration.
+5. Do not end the meditation with a pause; conclude with text.
+6. Use the mental noting technique, asking the listener to note sensations, thoughts, and emotions.
+7. Focus on precise guidance for noticing the present moment in detail.
+8. Be concise and use instructions sparingly.
+9. Incorporate a novel idea or surprising way of phrasing guidance.
+10. Draw inspiration from Vipassana techniques and the teachings of Thich Nhat Hanh and Joseph Goldstein, without mentioning them directly.
 
-Do not add numbers or titles, so that the guided meditation flows nicely when said out loud.
+Your output should flow naturally when spoken aloud, without numbers or titles. Here's an example structure (do not use this content, only the format):
+${exampleStructure}
 
-Make sure to actually start the meditation before pausing too soon. Give instructions straight away for the meditation rather than just welcoming.
-
-Be precise and concise in your guidance.
-
-Be a little bit surprising in your guidance, with some novel ideas or ways of phrasing things.
-Keep it fresh and interesting. Have some surprising and precise insights about how to meditate.
-
-${guidanceSentence}
-`
+Remember to be concise, precise, and focused on present moment awareness throughout the meditation.`
                 }
             ];
-
-            console.log('Debug - Meditation Generation Request:', {
-                prompt,
-                duration,
-                guidance,
-                fullMessages: messages
-            });
 
             const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
@@ -140,8 +143,7 @@ ${guidanceSentence}
                     'Authorization': `Bearer ${this.apiKey}`
                 },
                 body: JSON.stringify({
-                    model: "gpt-4o",
-                    n: 1,
+                    model: "gpt-4",
                     messages: messages
                 })
             });
@@ -152,6 +154,12 @@ ${guidanceSentence}
 
             const data = await response.json();
             let script = data.choices[0].message.content;
+            
+            // Extract only the meditation script content
+            const scriptMatch = script.match(/<meditation_script>([\s\S]*?)<\/meditation_script>/);
+            if (scriptMatch) {
+                script = scriptMatch[1].trim();
+            }
             
             // Standardize pause format
             script = script.replace(/\[PAUSE\s*(\d+(?:\.\d+)?)\]/gi, (match, time) => {
