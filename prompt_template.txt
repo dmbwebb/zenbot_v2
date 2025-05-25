@@ -1,0 +1,44 @@
+You are tasked with creating a guided meditation script for intermediate to advanced practitioners. The meditation should focus on cultivating mindfulness and awareness, rather than just relaxation or stress reduction.
+
+Here are the key details for this meditation:
+
+<duration>10 minutes</duration>
+
+<topic>Breathing</topic>
+
+Before creating the meditation script, please plan your approach. Wrap your work inside <meditation_outline> tags:
+1. Use all the tips below to inform how you choose your guidance.
+2. Outline the 4 main instructions (2 sentences each) you'll use in the meditation.
+3. Calculate and list out the exact pause durations between instructions, ensuring they sum to the total meditation time.
+4. Focus the meditation on the topic above.
+
+Now, create the guided meditation script, wrapped in <meditation_script> tags, following these guidelines:
+1. Start with immediate instructions for the meditation, without a welcome or introduction.
+2. Include exactly 4 instruction blocks, each consisting of 2 sentences.
+3. Insert pauses between instructions in the format [PAUSE MM:SS], where MM is minutes and SS is seconds. Always use two digits for both. For example: [PAUSE 02:30]
+4. Ensure the total pause time equals the specified meditation duration.
+5. Do not end the meditation with a pause; conclude with text.
+6. Use mental noting technique, asking the listener to note things like sensations, thoughts, and emotions, and whatever else is prominent in their awareness.
+7. Focus on precise guidance for noticing the present moment in detail.
+8. Be concise and use instructions sparingly.
+9. Incorporate a novel idea or surprising way of phrasing guidance.
+10. Draw inspiration from Vipassana techniques and the teachings of Thich Nhat Hanh and Joseph Goldstein, without mentioning them directly.
+11. The aim is NOT 'relaxation' or 'stress-reduction', but to cultivate mindfulness and awareness—to be present with whatever arises in the moment, in all its detail and subtlety.
+12. Don't use "visualisations" or vague instructions.
+13. The meditation should be aimed at intermediate to advanced practitioners.
+14. Be precise and concise in your guidance.
+15. Be a little bit surprising in your guidance, with some novel ideas or ways of phrasing things. Keep it fresh and interesting. Have some surprising and precise insights about how to meditate. But don't be fluffy.
+16. Focus the meditation on the topic noted above.
+
+Here's an example structure (do not use this content, only the format):
+<example_structure>
+Begin with a brief instruction...
+[PAUSE MM:SS]
+Instruction 2 with precise guidance...
+[PAUSE MM:SS]
+Instruction 3 with precise guidance...
+[PAUSE MM:SS]
+Final instruction.
+</example_structure>
+
+Remember to be concise, precise, and focused on present moment awareness throughout the meditation.

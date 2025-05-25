@@ -66,7 +66,11 @@ class APIManager {
 
             return response.status === 200;
         } catch (error) {
-            console.error('API Key validation error:', error);
+            if (typeof debugLog === 'function') {
+                debugLog('API Key validation error (api.js):', error.message, error.stack);
+            } else {
+                console.error('API Key validation error (api.js):', error);
+            }
             return false;
         }
     }
@@ -85,16 +89,16 @@ class APIManager {
                     break;
                 case 'more':
                     n_blocks = 7;
-                    sentences_per_block = "3 or 4";
+                    sentences_per_block = "2 or 3";
                     break;
             }
 
             // Generate example structure based on number of blocks
             let exampleStructure = 'Begin with a brief instruction...\n[PAUSE MM:SS]\n';
             for (let i = 2; i < n_blocks; i++) {
-                exampleStructure += `Instruction ${i} with precise guidance...\n[PAUSE MM:SS]\n`;
+                exampleStructure += `Instruction ${i} with concise guidance...\n[PAUSE MM:SS]\n`;
             }
-            exampleStructure += 'Final instruction with a novel insight...';
+            exampleStructure += 'Final instruction';
 
             const messages = [
                 {
@@ -112,10 +116,10 @@ Here are the key details for this meditation:
 <topic>${prompt}</topic>
 
 Before creating the meditation script, please plan your approach. Wrap your work inside <meditation_outline> tags:
-1. Outline the ${n_blocks} main instructions (${sentences_per_block} sentences each) you'll use in the meditation.
-2. Calculate and list out the exact pause durations between instructions, ensuring they sum to the total meditation time.
-3. Consider how to incorporate mental noting and present moment awareness into each instruction.
-4. Brainstorm at least three novel or surprising elements to potentially include in the guidance, then select the best one.
+1. Use all the tips below to inform how you choose your guidance.
+2. Outline the ${n_blocks} main instructions (${sentences_per_block} sentences each) you'll use in the meditation.
+3. Calculate and list out the exact pause durations between instructions, ensuring they sum to the total meditation time.
+4. Focus the meditation on the topic above.
 
 Now, create the guided meditation script, wrapped in <meditation_script> tags, following these guidelines:
 1. Start with immediate instructions for the meditation, without a welcome or introduction.
@@ -124,17 +128,30 @@ Now, create the guided meditation script, wrapped in <meditation_script> tags, f
 4. Ensure the total pause time equals the specified meditation duration.
 5. Do not end the meditation with a pause; conclude with text.
 6. Use the mental noting technique, asking the listener to note sensations, thoughts, and emotions.
-7. Focus on precise guidance for noticing the present moment in detail.
-8. Be concise and use instructions sparingly.
-9. Incorporate a novel idea or surprising way of phrasing guidance.
+7. Incorporate interesting insights or ways of phrasing guidance.
+8. Focus on precise guidance for noticing the present moment in detail.
+9. Be concise and use instructions sparingly.
 10. Draw inspiration from Vipassana techniques and the teachings of Thich Nhat Hanh and Joseph Goldstein, without mentioning them directly.
+11. The aim is NOT 'relaxation' or 'stress-reduction', but to cultivate mindfulness and awareness—to be present with whatever arises in the moment, in all its detail and subtlety.
+12. Don't use "visualisations" or vague instructions.
+13. The meditation should be aimed at intermediate to advanced practitioners.
+14. Be concise in your guidance.
+15. Focus the meditation on the topic noted above.
 
 Your output should flow naturally when spoken aloud, without numbers or titles. Here's an example structure (do not use this content, only the format):
+<example_structure>
 ${exampleStructure}
+</example_structure>
 
 Remember to be concise, precise, and focused on present moment awareness throughout the meditation.`
                 }
             ];
+
+            if (typeof debugLog === 'function') {
+                debugLog('Generating meditation script with messages (api.js):', JSON.stringify(messages, null, 2));
+            } else {
+                console.log('Generating meditation script with messages (api.js):', JSON.stringify(messages, null, 2));
+            }
 
             const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
@@ -143,7 +160,7 @@ Remember to be concise, precise, and focused on present moment awareness through
                     'Authorization': `Bearer ${this.apiKey}`
                 },
                 body: JSON.stringify({
-                    model: "gpt-4",
+                    model: "gpt-4.1",
                     messages: messages
                 })
             });
@@ -155,10 +172,27 @@ Remember to be concise, precise, and focused on present moment awareness through
             const data = await response.json();
             let script = data.choices[0].message.content;
             
+            // Extract the meditation outline content
+            const outlineMatch = script.match(/<meditation_outline>([\s\S]*?)<\/meditation_outline>/);
+            if (outlineMatch) {
+                const outline = outlineMatch[1].trim();
+                if (typeof debugLog === 'function') {
+                    debugLog('Meditation outline plan (api.js):', outline);
+                } else {
+                    console.log('Meditation outline plan (api.js):', outline);
+                }
+            }
+            
             // Extract only the meditation script content
             const scriptMatch = script.match(/<meditation_script>([\s\S]*?)<\/meditation_script>/);
             if (scriptMatch) {
                 script = scriptMatch[1].trim();
+            }
+            
+            if (typeof debugLog === 'function') {
+                debugLog('Meditation script (api.js):', script);
+            } else {
+                console.log('Meditation script (api.js):', script);
             }
             
             // Standardize pause format
@@ -173,7 +207,11 @@ Remember to be concise, precise, and focused on present moment awareness through
             
             return script;
         } catch (error) {
-            console.error('Error generating meditation script:', error);
+            if (typeof debugLog === 'function') {
+                debugLog('Error generating meditation script (api.js):', error.message, error.stack);
+            } else {
+                console.error('Error generating meditation script (api.js):', error);
+            }
             throw error;
         }
     }
@@ -199,7 +237,11 @@ Remember to be concise, precise, and focused on present moment awareness through
 
             return await response.blob();
         } catch (error) {
-            console.error('Error generating speech:', error);
+            if (typeof debugLog === 'function') {
+                debugLog('Error generating speech (api.js):', error.message, error.stack);
+            } else {
+                console.error('Error generating speech (api.js):', error);
+            }
             throw error;
         }
     }
