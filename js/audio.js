@@ -16,12 +16,27 @@ class AudioManager {
         this.playPauseBtn = document.getElementById('playPauseBtn');
         this.playIcon = this.playPauseBtn.querySelector('.play-icon');
         this.pauseIcon = this.playPauseBtn.querySelector('.pause-icon');
+        
+        // New elements for enhanced controls
+        this.skipBackBtn = document.getElementById('skipBackBtn');
+        this.skipForwardBtn = document.getElementById('skipForwardBtn');
+        this.timeDisplay = document.getElementById('timeDisplay');
+        this.progressBar = document.getElementById('audioProgressBar');
+        this.progressFill = document.getElementById('audioProgressFill');
 
         this.setupEventListeners();
     }
 
     setupEventListeners() {
         this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+        
+        // Add skip button listeners if elements exist
+        if (this.skipBackBtn) {
+            this.skipBackBtn.addEventListener('click', () => this.skip(-15));
+        }
+        if (this.skipForwardBtn) {
+            this.skipForwardBtn.addEventListener('click', () => this.skip(15));
+        }
     }
 
     updatePlayPauseButton(isPlaying) {
@@ -144,6 +159,10 @@ class AudioManager {
 
         this.audioPlayer.style.display = 'block';
         this.updatePlayPauseButton(true);
+        
+        // Initialize time display
+        this.updateTimeDisplay(0);
+        this.updateAudioProgressBar(0);
 
         // Start playback automatically
         setTimeout(() => {
@@ -286,6 +305,8 @@ class AudioManager {
                 const currentTime = this.audioContext.currentTime - this.startTime;
                 const progress = (currentTime / this.totalDuration) * 100;
                 this.updateProgress(Math.min(progress, 100));
+                this.updateTimeDisplay(currentTime);
+                this.updateAudioProgressBar(progress);
                 if (currentTime >= this.totalDuration) {
                     this.stopPlayback();
                 }
@@ -319,6 +340,53 @@ class AudioManager {
         }
         if (this.audioContext.state === 'suspended') {
             await this.audioContext.resume();
+        }
+    }
+    
+    skip(seconds) {
+        if (!this.meditationBuffer) return;
+        
+        const currentTime = this.isPlaying ? 
+            (this.audioContext.currentTime - this.startTime) : 
+            this.pauseTime;
+        
+        let newTime = currentTime + seconds;
+        newTime = Math.max(0, Math.min(newTime, this.totalDuration));
+        
+        if (this.isPlaying) {
+            // Stop current playback
+            if (this.audioSource) {
+                this.audioSource.stop();
+            }
+            // Start from new position
+            this.pauseTime = newTime;
+            this.startPlayback();
+        } else {
+            // Just update pause position
+            this.pauseTime = newTime;
+            this.updateTimeDisplay(newTime);
+            const progress = (newTime / this.totalDuration) * 100;
+            this.updateAudioProgressBar(progress);
+        }
+    }
+    
+    formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    updateTimeDisplay(currentSeconds) {
+        if (this.timeDisplay) {
+            const current = this.formatTime(currentSeconds);
+            const total = this.formatTime(this.totalDuration);
+            this.timeDisplay.textContent = `${current} / ${total}`;
+        }
+    }
+    
+    updateAudioProgressBar(percentage) {
+        if (this.progressFill) {
+            this.progressFill.style.width = `${percentage}%`;
         }
     }
 }

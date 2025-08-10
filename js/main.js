@@ -4,7 +4,7 @@
 window.noSleep = new NoSleep();
 
 const DEBUG = false;
-const VERSION = '2.1';
+const VERSION = '2.2';
 
 function setupDebugPanel() {
     const debugPanel = document.getElementById('debugPanel');
@@ -294,6 +294,14 @@ document.addEventListener('keydown', (e) => {
                 break;
             case 'escape':
                 audioManager.stopPlayback();
+                break;
+            case 'arrowleft':
+                e.preventDefault();
+                audioManager.skip(-15);
+                break;
+            case 'arrowright':
+                e.preventDefault();
+                audioManager.skip(15);
                 break;
         }
     }
