@@ -118,7 +118,7 @@ class AudioManager {
                         completedTextSegments++;
                         const progressPercentage = (completedTextSegments / totalTextSegments) * 80 + 20;
                         this.updateProgress(progressPercentage, `Generating audio for sentence ${completedTextSegments} of ${totalTextSegments}`);
-                        
+
                         console.log(`Processing sentence ${completedTextSegments} of ${totalTextSegments}: ${sentence}`);
                         const blob = await apiManager.generateSpeech(sentence);
                         const arrayBuffer = await blob.arrayBuffer();
@@ -159,7 +159,62 @@ class AudioManager {
 
         this.audioPlayer.style.display = 'block';
         this.updatePlayPauseButton(true);
-        
+
+        // Initialize time display
+        this.updateTimeDisplay(0);
+        this.updateAudioProgressBar(0);
+
+        // Start playback automatically
+        setTimeout(() => {
+            this.startPlayback();
+        }, 500);
+    }
+
+    async createBellsOnlyMeditation(durationMinutes) {
+        console.log('Creating bells-only meditation for', durationMinutes, 'minutes');
+
+        // Ensure bell sound is loaded
+        if (!this.bellBuffer) {
+            await this.loadBellSound();
+        }
+
+        const audioBuffers = [];
+        let currentTime = 0;
+        const timingMarks = [];
+
+        // Add initial bell
+        audioBuffers.push(this.bellBuffer);
+        timingMarks.push({ time: currentTime, type: 'bell' });
+        currentTime += this.bellBuffer.duration;
+
+        // Calculate silence duration to ensure second bell starts exactly at requested time
+        // The second bell should start X minutes after the first bell starts
+        const totalRequestedDuration = durationMinutes * 60; // Convert minutes to seconds
+        const silenceDuration = totalRequestedDuration - this.bellBuffer.duration;
+
+        // Ensure we have at least some silence (in case bell is longer than requested duration)
+        if (silenceDuration > 0) {
+            const silenceBuffer = await this.createSilence(silenceDuration);
+            audioBuffers.push(silenceBuffer);
+            timingMarks.push({ time: currentTime, type: 'silence', duration: silenceDuration });
+            currentTime += silenceDuration;
+        }
+
+        // Add final bell
+        audioBuffers.push(this.bellBuffer);
+        timingMarks.push({ time: currentTime, type: 'bell' });
+        currentTime += this.bellBuffer.duration;
+
+        // Create the final meditation buffer
+        this.totalDuration = currentTime;
+        const finalBuffer = this.mergeAudioBuffers(audioBuffers, currentTime);
+        this.meditationBuffer = finalBuffer;
+        this.timingMarks = timingMarks;
+
+        // Setup UI for playback
+        this.audioPlayer.style.display = 'block';
+        this.updatePlayPauseButton(true);
+
         // Initialize time display
         this.updateTimeDisplay(0);
         this.updateAudioProgressBar(0);

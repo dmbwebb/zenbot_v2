@@ -4,7 +4,7 @@
 window.noSleep = new NoSleep();
 
 const DEBUG = false;
-const VERSION = '2.2';
+const VERSION = '2.3.1';
 
 function setupDebugPanel() {
     const debugPanel = document.getElementById('debugPanel');
@@ -166,6 +166,18 @@ class MeditationApp {
             return;
         }
 
+        // Check if bells-only mode
+        if (guidance === 'bells-only') {
+            try {
+                await audioManager.ensureAudioContext();
+                await this.startBellsOnlyMeditation(duration);
+            } catch (error) {
+                apiManager.showError(`Failed to start meditation: ${error.message}`);
+                this.hideProgress();
+            }
+            return;
+        }
+
         // Set selected voice in APIManager, handling random selection
         if (voiceSelection === 'random') {
             const voices = ["alloy", "ash", "coral", "echo", "onyx", "nova", "sage", "shimmer"];
@@ -196,11 +208,11 @@ class MeditationApp {
             // Generate the meditation script
             this.currentScript = await apiManager.generateMeditationScript(prompt, duration, guidance);
             console.log('Generated meditation script:', this.currentScript);
-            
+
             // Display the script
             this.meditationScript.textContent = this.currentScript;
             this.toggleScriptBtn.style.display = 'block';
-            
+
             this.updateProgress(20);
 
             this.showProgress('Converting speech to audio...');
@@ -211,6 +223,33 @@ class MeditationApp {
             this.enablePlayback();
         } catch (error) {
             console.error('Error in meditation generation:', error);
+            apiManager.showError(error.message);
+            this.hideProgress();
+            throw error;
+        }
+    }
+
+    async startBellsOnlyMeditation(duration) {
+        // Enable wake lock immediately
+        if (window.noSleep) {
+            noSleep.enable();
+        }
+
+        this.showProgress('Preparing bells-only meditation...');
+        this.updateProgress(50);
+
+        try {
+            // Hide the script display since there's no script
+            this.toggleScriptBtn.style.display = 'none';
+
+            // Initialize audio and create bells-only meditation
+            await audioManager.initialize();
+            await audioManager.createBellsOnlyMeditation(duration);
+
+            this.hideProgress();
+            this.enablePlayback();
+        } catch (error) {
+            console.error('Error in bells-only meditation:', error);
             apiManager.showError(error.message);
             this.hideProgress();
             throw error;
