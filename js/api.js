@@ -160,7 +160,7 @@ Remember to be concise, precise, and focused on present moment awareness through
                     'Authorization': `Bearer ${this.apiKey}`
                 },
                 body: JSON.stringify({
-                    model: "gpt-4.1",
+                    model: "gpt-5",
                     messages: messages
                 })
             });
