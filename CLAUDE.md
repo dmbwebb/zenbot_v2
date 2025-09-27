@@ -30,6 +30,12 @@ zenbot_v2/
 
 ## Development Guidelines
 
+### Version Management
+- **IMPORTANT**: Always update the VERSION constant in `js/main.js` when making changes
+- Version format: Major.Minor (e.g., '2.2')
+- Update version for any feature additions, bug fixes, or significant changes
+- Version is displayed in the UI for debugging purposes
+
 ### Testing
 - Run tests using: `./test.sh`
 - No package.json - this is a pure vanilla JS project
@@ -45,7 +51,9 @@ zenbot_v2/
 2. Browser-based: All processing happens client-side
 3. Mobile-friendly: Must work on mobile browsers
 4. Offline capability: Service worker implementation
-5. Audio controls: Full playback control (play, pause, resume, stop)
+5. Audio controls: Full playback control (play, pause, resume, stop, skip forward/back)
+6. Progress tracking: Visual progress bar for meditation playback
+7. Enhanced iOS compatibility: Special handling for iOS audio restrictions
 
 ## Important Files
 
@@ -93,7 +101,16 @@ The application is designed to be deployed as a static site on GitHub Pages at:
 - Modify `prompt_template.txt` to change meditation generation patterns
 - Keep prompts focused on meditation and mindfulness
 
+## Recent Updates (v2.2)
+- Added skip forward/backward buttons (30 second intervals)
+- Implemented visual progress bar for meditation playback
+- Enhanced audio controls with better mobile support
+- Improved iOS audio compatibility with special handling
+- Updated to GPT-5 model for meditation generation
+- Refined meditation prompts for clearer guidance and better pacing
+
 ## Notes
 - This is a static site with no backend
 - All functionality runs in the browser
 - Designed for simplicity and privacy
+- Currently using GPT-5 model for meditation generation
