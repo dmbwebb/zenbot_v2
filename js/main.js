@@ -4,7 +4,7 @@
 window.noSleep = new NoSleep();
 
 const DEBUG = false;
-const VERSION = '2.3.1';
+const VERSION = '2.4';
 
 function setupDebugPanel() {
     const debugPanel = document.getElementById('debugPanel');
@@ -134,6 +134,45 @@ class MeditationApp {
         // Add script toggle to event listeners
         this.setupScriptDebugger();
 
+        // Setup preset buttons
+        this.setupPresetButtons();
+    }
+
+    setupPresetButtons() {
+        const presetButtons = document.querySelectorAll('.preset-btn');
+        const promptInput = document.getElementById('prompt');
+        const durationInput = document.getElementById('duration');
+
+        presetButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const topic = btn.dataset.topic;
+                const duration = btn.dataset.duration;
+
+                // Update form fields
+                promptInput.value = topic;
+                durationInput.value = duration;
+
+                // Add highlight animation to fields
+                promptInput.classList.remove('field-highlight');
+                durationInput.classList.remove('field-highlight');
+                // Trigger reflow to restart animation
+                void promptInput.offsetWidth;
+                void durationInput.offsetWidth;
+                promptInput.classList.add('field-highlight');
+                durationInput.classList.add('field-highlight');
+
+                // Update active state on buttons
+                presetButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Clear active state when user manually edits fields
+        [promptInput, durationInput].forEach(input => {
+            input.addEventListener('input', () => {
+                presetButtons.forEach(btn => btn.classList.remove('active'));
+            });
+        });
     }
 
     setupEventListeners() {

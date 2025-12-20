@@ -86,6 +86,86 @@ button:disabled {
     cursor: not-allowed;
 }
 
+/* Quick-start preset buttons */
+.presets-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.presets-label {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: #666;
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+.preset-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.preset-btn {
+    background: linear-gradient(145deg, #f8f8f8, #efefef);
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.preset-btn:hover {
+    background: linear-gradient(145deg, #6c757d, #5a6268);
+    color: white;
+    border-color: #6c757d;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.preset-btn:hover .preset-duration {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.preset-btn.active {
+    background: linear-gradient(145deg, #6c757d, #5a6268);
+    color: white;
+    border-color: #6c757d;
+}
+
+.preset-btn.active .preset-duration {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.preset-duration {
+    background: rgba(108, 117, 125, 0.1);
+    padding: 0.15rem 0.4rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    color: #6c757d;
+    transition: all 0.2s ease;
+}
+
+/* Highlight animation for form fields when preset fills them */
+@keyframes fieldHighlight {
+    0% { background-color: #fff; }
+    50% { background-color: #e8f4e8; }
+    100% { background-color: #fff; }
+}
+
+.field-highlight {
+    animation: fieldHighlight 0.6s ease;
+}
+
 .progress-container {
     display: none;
     margin: 2rem 0;
@@ -303,5 +383,15 @@ button:disabled {
     
     .skip-label {
         font-size: 0.7rem;
+    }
+
+    /* Preset buttons mobile */
+    .preset-buttons {
+        flex-direction: column;
+    }
+
+    .preset-btn {
+        width: 100%;
+        justify-content: center;
     }
 }
