@@ -4,7 +4,7 @@
 window.noSleep = new NoSleep();
 
 const DEBUG = false;
-const VERSION = '2.4';
+const VERSION = '2.41';
 
 function setupDebugPanel() {
     const debugPanel = document.getElementById('debugPanel');
@@ -86,12 +86,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     debugLog(`ZenBot Version: ${VERSION}`);
 
     // Add version number display
-    const versionDisplay = document.createElement('div');
-    versionDisplay.textContent = `v${VERSION}`;
-    versionDisplay.style.cssText = 'color: #666; font-size: 0.8em; text-align: center; margin-top: -20px; margin-bottom: 10px;';
-    const title = document.querySelector('h1');
-    if (title) {
-        title.parentNode.insertBefore(versionDisplay, title.nextSibling);
+    const versionDisplay = document.getElementById('versionDisplay');
+    if (versionDisplay) {
+        versionDisplay.textContent = `v${VERSION}`;
     }
 
     if (DEBUG) {
@@ -142,6 +139,7 @@ class MeditationApp {
         const presetButtons = document.querySelectorAll('.preset-btn');
         const promptInput = document.getElementById('prompt');
         const durationInput = document.getElementById('duration');
+        const guidanceSelect = document.getElementById('guidance');
 
         presetButtons.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -151,15 +149,19 @@ class MeditationApp {
                 // Update form fields
                 promptInput.value = topic;
                 durationInput.value = duration;
+                guidanceSelect.value = 'medium';
 
                 // Add highlight animation to fields
                 promptInput.classList.remove('field-highlight');
                 durationInput.classList.remove('field-highlight');
+                guidanceSelect.classList.remove('field-highlight');
                 // Trigger reflow to restart animation
                 void promptInput.offsetWidth;
                 void durationInput.offsetWidth;
+                void guidanceSelect.offsetWidth;
                 promptInput.classList.add('field-highlight');
                 durationInput.classList.add('field-highlight');
+                guidanceSelect.classList.add('field-highlight');
 
                 // Update active state on buttons
                 presetButtons.forEach(b => b.classList.remove('active'));
